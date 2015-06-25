@@ -27,7 +27,7 @@ public class RemoveEnterInPara {
 		String line = getBlock(br, sb);
 
 		while (line != null) {
-			bw.write(sb.toString());
+			bw.write(sb.toString().trim());
 			bw.newLine();
 			sb = new StringBuffer();
 			line = getBlock(br, sb);
@@ -45,7 +45,7 @@ public class RemoveEnterInPara {
 
 		String line = br.readLine();
 		while (line != null && line.trim().length() != 0) {
-			sb.append(line);
+			sb.append(line + " ");
 			line = br.readLine();
 		}
 		return line;
