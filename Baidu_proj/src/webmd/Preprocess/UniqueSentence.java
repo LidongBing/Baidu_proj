@@ -11,20 +11,20 @@ import java.util.regex.Pattern;
 
 public class UniqueSentence {
 
-	public static Pattern PTN = Pattern.compile("<[^\\s]+>");
+	public static Pattern PTN = Pattern.compile("<.+>");
 	public static HashMap<Long, String> sentMap = new HashMap<Long, String>();
 
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 
-		if (args.length != 3) {
-			System.out
-					.println("ERROR: please give the inputfile, outputfile, and outFileForSentCode.");
-			System.exit(0);
-		}
-		getUniqueSentence(args[0], args[1], args[2]);
-		// Matcher m = PTN.matcher("<aa>");
-		// System.out.println(m.find());
+//		if (args.length != 3) {
+//			System.out
+//					.println("ERROR: please give the inputfile, outputfile, and outFileForSentCode.");
+//			System.exit(0);
+//		}
+//		getUniqueSentence(args[0], args[1], args[2]);
+		 Matcher m = PTN.matcher("<a<a>");
+		 System.out.println(m.find());
 	}
 
 	public static void getUniqueSentence(String inputfile, String outputfile,
