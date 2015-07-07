@@ -8,7 +8,18 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class UniqIDMapping {
-
+	/*
+	 *  This class is used for transfer between sentence code and unique code.
+	 *  
+	 *  1.input file:
+	 *  sentCodeFile format:1	4077396065221053988	4077396065221053988	B-NP	CD	O	0	ROOT
+	 *  					
+	 *  uniqIDFile format: S_${line_num}_${relative position}
+	 *  
+	 *  2.outputFile:
+	 *  mappingFile format:S_3_1	4077396065221053988
+	 *  
+	 */
 	public static HashMap<Integer, String> sentCodeMap = new HashMap<>();
 
 	public static void main(String[] args) throws IOException {
