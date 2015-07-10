@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<item>
+  <name>Carbatrol</name>
+  <generic_name>carbamazepine</generic_name>
+  <file_name>/remote/curtis/rgoutam/baidu_data/prescription/001a1b71-7868-44a2-9e28-6935cb4a9718.xml</file_name>
+  <ndc_codes>
+    <ndc_code>54868-5432</ndc_code>
+  </ndc_codes>
+  <principal_display_panel>## PRINCIPAL DISPLAY PANEL</principal_display_panel>
+  <warnings>## WARNINGS</warnings>
+  <description>## DESCRIPTION</description>
+  <adverse_reactions>## ADVERSE REACTIONS</adverse_reactions>
+  <indications_and_usage>## INDICATIONS AND USAGE</indications_and_usage>
+  <clinical_pharmacology>## CLINICAL PHARMACOLOGY</clinical_pharmacology>
+  <overdosage>## OVERDOSAGE</overdosage>
+  <how_supplied>## HOW SUPPLIED</how_supplied>
+  <drug_abuse_and_dependence>## DRUG ABUSE AND DEPENDENCE</drug_abuse_and_dependence>
+  <precautions>## PRECAUTIONS</precautions>
+  <contraindications>## CONTRAINDICATIONS</contraindications>
+  <dosage_and_administration>## DOSAGE AND ADMINISTRATION</dosage_and_administration>
+</item>

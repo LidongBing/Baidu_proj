@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<items>
+<item>
+  <name>Intermezzo</name>
+  <generic_name>zolpidem tartrate</generic_name>
+  <file_name>/remote/curtis/rgoutam/baidu_data/prescription/000853a2-c598-4bc6-9aa8-61c3afa66173.xml</file_name>
+  <ndc_codes>
+    <ndc_code>59011-255</ndc_code>
+    <ndc_code>59011-256</ndc_code>
+  </ndc_codes>
+  <clinical_studies>## CLINICAL STUDIES
+    <subsection>## Special Safety Studies
+-2786108272909699744
+-4011908570954715718
+1401400993366867266
+-5703642318359378658
+-1834839865813110823
+3994193979774370913
+-4268640044153592111
+-7328461888078728212
+-7279355255297733418
+-142227259545322191
+6809262558629329865
+6850091484426941055
+1899327790002070189
+-7875446352954204411
+5054199128986010365
+113104391184971734
+7912978906401751128
+    </subsection>
+  </clinical_studies>
+</item>
+</items>
