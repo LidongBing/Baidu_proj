@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<item>
+  <name>GENTAMICIN SULFATE</name>
+  <generic_name>gentamicin sulfate</generic_name>
+  <file_name>/remote/curtis/rgoutam/baidu_data/prescription/001661c8-840a-4719-80fa-6dc1785bb323.xml</file_name>
+  <ndc_codes>
+    <ndc_code>52125-461</ndc_code>
+  </ndc_codes>
+  <indications>## INDICATIONS &amp; USAGE</indications>
+  <dosage>## DOSAGE &amp; ADMINISTRATION</dosage>
+  <warnings>## WARNINGS</warnings>
+  <description>## DESCRIPTION</description>
+  <adverse_reactions>## ADVERSE REACTIONS</adverse_reactions>
+  <package_label>## PACKAGE LABEL.PRINCIPAL DISPLAY PANEL SECTION</package_label>
+  <clinical_pharmacology>## CLINICAL PHARMACOLOGY</clinical_pharmacology>
+  <how_supplied>## HOW SUPPLIED</how_supplied>
+  <precautions>## PRECAUTIONS</precautions>
+  <contraindications>## CONTRAINDICATIONS</contraindications>
+  <spl_unclassified>## SPL UNCLASSIFIED</spl_unclassified>
+</item>
