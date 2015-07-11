@@ -52,6 +52,7 @@ This is a file to record the working precedure of the relation extraction pipeli
 	Output: drug-item-feature/hasFeature.cfacts drug-item-feature/featureOf.cfacts
 
 
+================================
 
 For Mingyang
 
