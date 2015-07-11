@@ -11,8 +11,8 @@ public class UniqIDMapping {
 	/*
 	 * This class is used for transfer between sentence code and unique code.
 	 * 
-	 * 1.input file: sentCodeFile format:1	4077396065221053988	
-	 * 4077396065221053988	B-NP	CD	O	0	ROOT
+	 * 1.input file: sentCodeFile format:1 4077396065221053988
+	 * 4077396065221053988 B-NP CD O 0 ROOT
 	 * 
 	 * uniqIDFile format: S_${line_num}_${relative position}
 	 * 
@@ -44,13 +44,25 @@ public class UniqIDMapping {
 		BufferedReader br = new BufferedReader(new FileReader(sentCodeFile));
 		String line = null;
 		Integer lineNumber = 1;
+		String line_1 = br.readLine();
+		String line_2 = "";
+
 		while ((line = br.readLine()) != null) {
-			if (line.startsWith("1\t")
-					&& line.endsWith("\tB-NP\tCD\tO\t0\tROOT")) {
-				sentCodeMap.put(lineNumber, line.split("\t")[1]);
+			if (line.trim().length() == 0 && line_2.trim().length() == 0) {
+				sentCodeMap.put(lineNumber, line_1.split("\t")[1]);
 			}
+			line_2 = line_1;
+			line_1 = line;
 			lineNumber++;
 		}
+
+		// while ((line = br.readLine()) != null) {
+		// if (line.startsWith("1\t")
+		// && line.endsWith("\tB-NP\tCD\tO\t0\tROOT")) {
+		// sentCodeMap.put(lineNumber, line.split("\t")[1]);
+		// }
+		// lineNumber++;
+		// }
 		br.close();
 	}
 
