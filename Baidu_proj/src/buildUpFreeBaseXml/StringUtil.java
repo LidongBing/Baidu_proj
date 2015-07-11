@@ -1,6 +1,6 @@
 package buildUpFreeBaseXml;
 
-public class SectionNameParser {
+public class StringUtil {
 	// for remove number before title
 	public static String getOriginalTitle(String name) {
 		int i = 0;

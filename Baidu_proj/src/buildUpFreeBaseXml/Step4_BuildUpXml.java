@@ -29,7 +29,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class Step3_BuildUpXml {
+public class Step4_BuildUpXml {
 	/*
 	 * args[0] inputXmlFile
 	 * args[1] outputXmlFile
@@ -120,15 +120,15 @@ class SingleFileBuildWithSubTitle {
 		NodeList nodeList = (NodeList) xPath.compile("/document/component/structuredBody/component/section/title").evaluate(document, XPathConstants.NODESET);
 		for (int i = 0; null != nodeList && i < nodeList.getLength(); i++) {
 			Node node = nodeList.item(i);
-			String oriString = SectionNameParser.getOriginalTitle(node.getTextContent());
-			String name = SectionNameParser.getParseTitle(oriString);
+			String oriString = StringUtil.getOriginalTitle(node.getTextContent());
+			String name = StringUtil.getParseTitle(oriString);
 			if (name != null && !name.equals("") && mapping.containsKey(oriString.toLowerCase())) {
 				Node sectionNode = node.getParentNode();
 				Node textNode = (Node) xPath.compile("./text").evaluate(sectionNode, XPathConstants.NODE);
 				String text = "";
 				if (textNode != null) {
 					text = textNode.getTextContent();
-					text = SectionNameParser.trimText(text);
+					text = StringUtil.trimText(text);
 				}
 				ComponentStruct componentstruct = new ComponentStruct();
 				componentstruct.text = text;
@@ -146,10 +146,10 @@ class SingleFileBuildWithSubTitle {
 			Node node = nodeList.item(i);
 			Node subTitleNode = (Node) xPath.compile("./title").evaluate(node, XPathConstants.NODE);
 			if (subTitleNode != null) {
-				String subTitle = SectionNameParser.getOriginalTitle(subTitleNode.getTextContent());
+				String subTitle = StringUtil.getOriginalTitle(subTitleNode.getTextContent());
 				if (!subTitle.equals("")) {
 					String subText = node.getTextContent().replace(subTitleNode.getTextContent(), "").trim();
-					subText = SectionNameParser.trimText(subText);
+					subText = StringUtil.trimText(subText);
 					subComponent.put(subTitle, subText);
 				}
 
