@@ -23,15 +23,48 @@ public class SentIDSecMapping {
 
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
+
+		// System.out.println(null + "\t");
+		if (args.length != 2) {
+			System.out
+					.println("ERROR: please give the inputfile, and outputfile.");
+			System.out
+					.println("\t inputfile: the file containing drug items with sentences are coded with long int");
+			System.out
+					.println("\t outputFfile: uniqueSentID <TAB> generic name <TAB> brand name <TAB> section title");
+			System.exit(0);
+		}
+
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		Document doc = db.parse(new File(args[0]));
+
+		Node itemsNode = doc.getFirstChild();
+		if (itemsNode == null
+				|| !itemsNode.getNodeName().equalsIgnoreCase("items")) {
+			System.err.println("ERROR: the root node should be <items>");
+			System.exit(0);
+		}
+
+		BufferedWriter bw = new BufferedWriter(new FileWriter(args[1]));
+		NodeList itemList = itemsNode.getChildNodes();
+		for (int i = 0; i < itemList.getLength(); i++) {
+			if (itemList.item(i).getNodeName().equalsIgnoreCase("item"))
+				processOneItem(bw, itemList.item(i));
+		}
+		bw.close();
+	}
+
+	public static void testing() throws Exception {
+
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		Document doc = db.parse(new File(
 				"testData/000853a2-c598-4bc6-9aa8-61c3afa66173.xml"));
-//		System.out.println(doc.getChildNodes().item(0).getTextContent()
-//				.split("\\n").length);
+		// System.out.println(doc.getChildNodes().item(0).getTextContent()
+		// .split("\\n").length);
 		System.out.println(doc.getElementsByTagName("clinical_studies").item(0)
 				.getTextContent());
-		System.out.println("## aaa".replace("## ", ""));
 
 		Node itemsNode = doc.getFirstChild();
 		if (itemsNode == null || !itemsNode.getNodeName().equals("items")) {
@@ -48,13 +81,12 @@ public class SentIDSecMapping {
 		bw.close();
 
 		System.out.println(isInt("222-233"));
-
 	}
 
 	public static void processOneItem(BufferedWriter bw, Node item)
 			throws IOException {
 		if (item.hasChildNodes()) {
-			String drugName = getContentByTagName(item, "name");
+			String brandName = getContentByTagName(item, "name");
 			String genricDrugName = getContentByTagName(item, "generic_name");
 
 			NodeList children = item.getChildNodes();
@@ -68,8 +100,8 @@ public class SentIDSecMapping {
 					sectionTitle = toks[0].trim().replace("## ", "");
 				for (int j = 1; j < toks.length; j++) {
 					if (isInt(toks[j].trim())) {
-						bw.write(toks[j].trim() + "\t" + drugName + "\t"
-								+ genricDrugName + "\t" + sectionTitle);
+						bw.write(toks[j].trim() + "\t" + genricDrugName + "\t"
+								+ brandName + "\t" + sectionTitle);
 						bw.newLine();
 					}
 				}
@@ -78,7 +110,7 @@ public class SentIDSecMapping {
 	}
 
 	private static boolean isInt(String str) {
-		if(str==null || str.length()==0)
+		if (str == null || str.length() == 0)
 			return false;
 
 		if (!(str.charAt(0) == '-') && !Character.isDigit(str.charAt(0))) {
