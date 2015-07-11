@@ -18,8 +18,8 @@ import java.util.HashMap;
  * format: 6801022152812041277 <TAB> SIMVASTATIN <TAB> Zocor <TAB> Interactions
  * 
  * Output: 
- * hasItem.cfacts.aug: hasItem <TAB> s_xx_yy <TAB> item_genericName
- * inList.cfacts.aug: inList <TAB> item_genericName <TAB> s_xx_yy 
+ * hasItem.cfacts.aug: hasItem <TAB> s_xx_yy <TAB> item@genericName
+ * inList.cfacts.aug: inList <TAB> genericName@item <TAB> s_xx_yy 
  * genericName: lower case
  * 
  */
@@ -35,8 +35,8 @@ public class DrugAugmentGraph {
 			System.exit(0);
 		}
 
-		HashMap<String, String> listID_SentID_Map = loadMap(args[2]);
-		HashMap<String, String> sentID_genericName_Map = loadMap(args[3]);
+		HashMap<String, String> listID_SentID_Map = load_sentID_genericName_Map(args[2]);
+		HashMap<String, String> sentID_genericName_Map = load_sentID_genericName_Map(args[3]);
 
 		BufferedReader brHasItem = new BufferedReader(new FileReader(args[0]));
 		BufferedWriter bwHasItemAug = new BufferedWriter(
@@ -48,10 +48,10 @@ public class DrugAugmentGraph {
 		while ((line = brHasItem.readLine()) != null) {
 			listID = line.split("\t")[1];
 			listItem = line.split("\t")[2];
-			listItemAug = listItem
-					+ "@"
-					+ sentID_genericName_Map.get(listID_SentID_Map.get(listID))
-							.replaceAll("\\s+", "_").toLowerCase().trim();
+			listItemAug = sentID_genericName_Map
+					.get(listID_SentID_Map.get(listID)).replaceAll("\\s+", "_")
+					.toLowerCase().trim()
+					+ "@" + listItem;
 			bwHasItemAug.write("hasItem\t" + listID + "\t" + listItemAug);
 			bwHasItemAug.newLine();
 			bwHasItemAug.flush();
@@ -64,10 +64,10 @@ public class DrugAugmentGraph {
 		while ((line = brInList.readLine()) != null) {
 			listID = line.split("\t")[2];
 			listItem = line.split("\t")[1];
-			listItemAug = listItem
-					+ "@"
-					+ sentID_genericName_Map.get(listID_SentID_Map.get(listID))
-							.replaceAll("\\s+", " ").toLowerCase().trim();
+			listItemAug = sentID_genericName_Map
+					.get(listID_SentID_Map.get(listID)).replaceAll("\\s+", "_")
+					.toLowerCase().trim()
+					+ "@" + listItem;
 			bwInListAug.write("inList\t" + listItemAug + "\t" + listID);
 			bwInListAug.newLine();
 
@@ -77,8 +77,21 @@ public class DrugAugmentGraph {
 
 	}
 
-	public static HashMap<String, String> loadMap(String file)
+	public static HashMap<String, String> load_listID_SentID_Map(String file)
 			throws IOException {
+		HashMap<String, String> retMap = new HashMap<String, String>();
+		BufferedReader br = new BufferedReader(new FileReader(file));
+
+		String line = null;
+		while ((line = br.readLine()) != null) {
+			retMap.put(line.split("\t")[0], line.split("\t")[1]);
+		}
+		br.close();
+		return retMap;
+	}
+
+	public static HashMap<String, String> load_sentID_genericName_Map(
+			String file) throws IOException {
 		HashMap<String, String> retMap = new HashMap<String, String>();
 		BufferedReader br = new BufferedReader(new FileReader(file));
 
