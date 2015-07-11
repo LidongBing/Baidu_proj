@@ -1,0 +1,177 @@
+In this strategy, freebase instances are splitted into three parts, 
+50% for coverage testing, 10% for generating classification testing list with proppr,
+and 40% for  generating classification training list with proppr.
+
+In addition, the bipartite graph contains both trivial lists and coord lists. 
+After proppr, both trivial lists and coord lists are in the same solution list.
+
+#####2015 June 9#####
+
+Filter the multi-class freebase instances. 
+Split instances into three parts, 50% for coverage testing, 10% for generating classification testing list with proppr,
+and 40% for  generating classification training list with proppr. Do 10 different runnings
+	Code: BaiduProject_N/seed
+	Output: /data/singleClassSeeds
+
+
+
+Run GPig to process "all_experiment/new-main-pipeline/postprocess-parsed-docs/paragraph_ss_filter_parse.txt.merged" for coord lists and trivial lists ( or length 1+ lists)
+	Code: all_experiment/new-main-pipeline/postprocess-parsed-docs/gpig/listmalt.py
+	Run with: all_experiment/new-main-pipeline/postprocess-parsed-docs/gpig/run_listmalt.sh
+	Output: ./gpig/gpig_view/listsWithItems.gp ./gpig/gpig_view/listsAsGraph.gp, ./gpig/gpig_view/listsWithDFeats.gp ./gpig/gpig_view/listWithCFeats.gp, ./gpig/gpig_view/readableLists.gp, 
+
+	Conclusion: get 4036700 lists
+
+
+Generate trivial list and coord list tok features and bipartite graph by postprocessing the gpig output
+	Code: all_experiment/new-main-pipeline/postprocess-parsed-docs/gpig/PostProcessGPig
+	Run With: all_experiment/new-main-pipeline/postprocess-parsed-docs/gpig/run_PostProcessGPig.sh
+	Output: /all_experiment/new-main-pipeline/list-tok-feat/all-list/
+	        /all_experiment/new-main-pipeline/proppr-ssl-new-FBseed-strategy/all-list/
+
+Run SSL with proppr:
+	Run with: /all_experiment/new-main-pipeline/proppr-ssl-new-FBseed-strategy/run_diff-runs.sh OR run_batch_diff-runs.sh
+
+
+Generate example of length 1+ lists for classification with the solution of PROPPR in /all_experiment/new-main-pipeline/proppr-ssl-new-FBseed-strategy/diff-runs
+	Code: /all_experiment/new-main-pipeline/list-classify-new-FBseed-strategy/PostprocessSSLSolution/ExtractClassifyExample
+	Run: run_PostprocessSSLSolution.sh
+	Output:/all_experiment/new-main-pipeline/list-classify-new-FBseed-strategy/diff-runs/x/FB_seed_100.0p/top1000_sol_single_class.exmps 
+	      /all_experiment/new-main-pipeline/list-classify-new-FBseed-strategy/diff-runs/x/FB_seed_forTestList/top500_sol_single_class.exmps
+
+
+Generating the different types tok features of length 1+ lists for the 
+test files in new-main-pipeline/list-classify-new-FBseed-strategy/diff-runs/x/FB_seed_forTestList/top500_sol_single_class.exmps
+and train files in new-main-pipeline/list-classify-new-FBseed-strategy/diff-runs/x/FB_seed_100.0p/top1000_sol_single_class.exmps
+	Code: /all_experiment/new-main-pipeline/list-classify-new-FBseed-strategy/ClassifyExample/TokFeature.java
+	Run: run_ClassifyExample_tok_feat.sh
+	Output: list-classify-new-FBseed-strategy/diff-runs/x/FB_seed_${i}p/top1000_sol_single_class.tok_feat
+		list-classify-new-FBseed-strategy/diff-runs/x/FB_seed_forTestList/top500_sol_single_class.tok_feat
+
+
+merge the tok feature files of length 1+ lists in ALL combination, only ALL. 
+	Code: /all_experiment/new-main-pipeline/list-classify-new-FBseed-strategy/ClassifyExample/TokFeatMerger.java
+	Run: run_ClassifyExample_merge_tok_feat.sh
+	Output: list-classify-new-FBseed-strategy/diff-runs/x/FB_seed_1p/xxx_ALL.tok_feat, xxx_WITHOUT_xxx.tok_feat
+		list-classify-new-FBseed-strategy/diff-runs/x/FB_seed_forTestList/xxx_ALL.tok_feat, xxx_WITHOUT_xxx.tok_feat
+
+Generate feature vectors of length 1+ lists  for the training files
+	Code: /all_experiment/new-main-pipeline/list-classify-new-FBseed-strategy/ClassifyExample/TrainFeature.java
+	Run: run_ClassifyExample_feat_vec.sh
+	Output: diff-runs/x/FB_seed_${i}p/xxx.vec, xxx.dict
+
+
+Generate feature vectors of length 1+ lists  for the testing files
+	Run: run_ClassifyExample_test_feat_vec.sh
+	Code: /all_experiment/new-main-pipeline/list-classify-new-FBseed-strategy/ClassifyExample/TestFeature.java
+	Output: diff-runs/x/FB_seed_forTestList/FB_seed_${i}p/xxx.vec
+
+
+#####2015 June 10#####
+
+
+
+Generate tok feature and feature vectors for all length 1+ lists
+	NOTE: do it after selecting a param configration, so that the dict is determined
+	Code: /remote/curtis/baidu/all_experiment/new-main-pipeline/list-classify-new-FBseed-strategy/all-list-feat/ProcessAllList/AllListTokFeatMerger.java and UnseenListFeature.java
+	Run: ./run_ProcessAllList.sh
+	Output: all_list_ALL.tok_feat, all_list_run${run}_100.0p_top20000.vec
+
+
+
+Run GPig to process "postprocess-parsed-docs/paragraph_ss_filter_parse.txt.merged" for trivial list
+	Code: all_experiment/trivial-list-pipeline/postprocess-parsed-docs/gpig/listmalt.py
+	Run with: all_experiment/trivial-list-pipeline/postprocess-parsed-docs/gpig/run_listmalt.sh
+	Output: ./gpig/gpig_view/listsAsGraph.gp, ./gpig/gpig_view/listsWithDFeats.gp
+		./gpig/gpig_view/listWithCFeats.gp, ./gpig/gpig_view/readableLists.gp
+
+	Conclusion: get 4456422 trivial lists
+
+	
+Generate trivial list features by postprocessing the gpig output
+	Code: all_experiment/trivial-list-pipeline/postprocess-parsed-docs/gpig/PostProcessGPig
+	Run With: all_experiment/trivial-list-pipeline/postprocess-parsed-docs/gpig/run_PostProcessGPig.sh
+	Output: /all_experiment/trivial-list-pipeline/list-tok-feat/all-list/
+
+
+
+Get trivial testing and training examples. For training, each type contains 40% FB seeds.
+For testing, each type contains 10% FB seeds. 
+	Code: /remote/curtis/baidu/all_experiment/trivial-list-pipeline/TrivalList/GetExamples.java
+	Run with: run_TrivalList_get_exmp.sh
+	Output: diff-runs/0~9/xx.exmp files
+
+
+Generating the different types tok feature files for the 
+test files in all_experiment/trivial-list-pipeline/diff-runs/x/devel_50p_proppr_seed_forTest.exmps and devel_50p_proppr_seed_forTrain.exmps
+	Code: /remote/curtis/baidu/all_experiment/trivial-list-pipeline/TrivalList/GetExamples.java
+	Run with: trivial-list-pipeline/run_ClassifyExample_tok_feat.sh
+	Output: diff-runs/0~9/xx.tok_feat files
+
+Merge the tok feature files for trivial training and testing examples. 
+	Code: /all_experiment/trivial-list-pipeline/TrivalList/TokFeatMerger.java
+	Run: trivial-list-pipeline/run_ClassifyExample_merge_tok_feat.sh
+	Output: diff-runs/0~9/xx_ALL.tok_feat
+
+
+Generate feature vectors for the trivial training examples 
+	Code: /remote/curtis/baidu/all_experiment/trivial-list-pipeline/TrivalList/TrainFeature.java
+	Run: run_ClassifyExample_feat_vec.sh
+	Output: diff-runs/x/xx_forTrain_posiX_ALL.tok_feat, xxx_forTrain_ALL.dict
+
+Generate feature vectors for the trivial testing examples
+	Run: run_ClassifyExample_test_feat_vec.sh
+	Code: /remote/curtis/baidu/all_experiment/trivial-list-pipeline/TrivalList/TestFeature.java
+	Output: diff-runs/x/xx_forTest_posiX_ALL.tok_feat
+
+
+#####2015 June 11#####
+
+
+Generate feature vectors of all trivial lists
+	NOTE: dict is one in any all_experiment/trivial-list-pipeline/diff-runs/X
+	Code: all_experiment/trivial-list-pipeline/all-list-feat/ProcessAllList/AllListTokFeatMerger.java and UnseenListFeature.java
+	Run: ./run_ProcessAllList.sh
+	Output: all_list_ALL.tok_feat, all_list_run${run}.vec
+
+	
+Generate evaluation data for ProPPR LP on trivial and real list (also a classification problem)
+	Prediction data: use the solutions of different percentages in the runs at /remote/curtis/baidu/all_experiment/new-main-pipeline/proppr-ssl-new-FBseed-strategy/diff-runs/[0-9]
+	Gold test result: the top 500 solutions of %10 freebase seeds, in /remote/curtis/baidu/all_experiment/new-main-pipeline/proppr-ssl-new-FBseed-strategy/diff-runs/[0-9]/FB_seed_forTestList
+	Run With: /proppr-ssl-new-FBseed-strategy/evaluation/run_PostprocessSSLSolution.sh and run_PropprSSLListEvaluation.sh
+	Output: evaluation/diff-runs/X/
+
+
+Get solution items by postprocess the solution of ProPPR on trivial and real lists, all runs with 100.0p seeds: 
+	Code: /remote/curtis/baidu/all_experiment/new-main-pipeline/proppr-ssl-new-FBseed-strategy/item-sol-from-list/PostprocessSSLSolution and PropprSSLItemEvaluation/
+	Run with: run_PostprocessSSLSolution.sh and run_PropprSSLItemEvaluation.sh
+	Output: run${run}_top-1_sol_multi_class.pred, run${run}_top-1_merged_item.pred run${run}_top-1_item.pred
+
+
+Get solution items by postprocess the NP prediction of distant supervision 
+	Code: /remote/curtis/baidu/all_experiment/trivial-list-pipeline/item-sol/ClassifyItemEvaluation/NPPredictToItemSol.java
+	Classification results: /remote/curtis/baidu/mingyanl/0611/0611-trivial-list-pipeline/compare/${run}
+	Run with: ./run_ClassifyIE_NP_Sol.sh
+	Output: run${run}_item.pred
+
+[TODO]Get solution items by postprocess the list classfication prediction
+	Code: /remote/curtis/baidu/all_experiment/new-main-pipeline/list-classify-new-FBseed-strategy/item-sol-from-list/ClassifyItemEvaluation/ListPredictToListIDMap.java and ListSolExmpToItemSol.java
+	Classification results: /remote/curtis/baidu/mingyanl/0611/0611-list-classify-new-FBseed-strategy/compare/${run}
+	Run with: run_ClassifyItemEvaluation.sh
+	Output: run${run}_list.pred, run${run}_item.pred run${run}_merged_item.pred, 
+
+
+
+Calculate the coverage of FB heldout evaluation instances. 
+	Heldout FB instances: BaiduDrug_N\data\singleClassSeeds\runs\${run}\coverage_eva_multiAdded OR /remote/curtis/baidu/all_experiment/new-main-pipeline/proppr-ssl-new-FBseed-strategy/FB-seeds/runs/${run}/coverage_eva_multiAdded
+		The multi-class instances are added back
+	Predicted Items by ProPPR: all_experiment/new-main-pipeline/proppr-ssl-new-FBseed-strategy/item-sol-from-list
+		Files: run${run}_top-1_merged_item.pred
+	Predicted Items by NP classification: all_experiment/trivial-list-pipeline/item-sol/
+		Files: run${run}_item.pred
+	Predicted Items by list classification: all_experiment/new-main-pipeline/list-classify-new-FBseed-strategy/item-sol-from-list/
+		Files: run${run}_merged_item.pred
+
+	The coverage of the corpus on the evluation set
+		Files: /remote/curtis/baidu/all_experiment/trivial-list-pipeline/oracle/oracle_merged_item.pred
+

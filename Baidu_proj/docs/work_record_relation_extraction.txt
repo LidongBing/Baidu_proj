@@ -1,0 +1,99 @@
+This is a file to record the working precedure of the relation extraction pipeline.
+
+#####2015 July 1#####
+1. Preprocess webmd, see the folder: /remote/curtis/baidu/webmd-processed, its readme.txt, and run_pipeline.sh
+
+
+#####2015 July 7#####
+1. Run GPig to process "/remote/curtis/baidu/webmd-processed/webmd_export-2015-06-08T19-34-11_sent_code_parsed.txt" for coord lists and trivial lists ( or length 1+ lists)
+	Code: webmd-processed/gpig/listmalt.py
+	Run with: webmd-processed/gpig/run_listmalt.sh
+	Output: ./gpig/gpig_view/listsWithItems.gp ./gpig/gpig_view/listsAsGraph.gp, ./gpig/gpig_view/listsWithDFeats.gp ./gpig/gpig_view/listWithCFeats.gp, ./gpig/gpig_view/readableLists.gp, 
+
+	Conclusion: get 498867 lists
+	
+
+2. Generate trivial list and coord list tok features and bipartite graph by postprocessing the gpig output
+	Code: webmd-processed/gpig/PostProcessGPig
+	Run With: webmd-processed/gpig/run_PostProcessGPig.sh
+	Output: webmd-processed/list-tok-feat/all-list/
+	        webmd-processed/list-graph/
+
+
+
+#####2015 July 10#####
+1. Get the brand name, generic name, and section title for each unique sentence ID
+	Code: java webmd.Preprocess.SentIDSecMapping webmd_export-2015-06-08T19-34-11_re_clean_ss_code.xml webmd_export-2015-06-08T19-34-11_sentId_info.txt
+	Output: webmd_export-2015-06-08T19-34-11_sentId_info.txt
+
+2. Get the list IDs in the form s_xx_yy from hasItem file of webmd.
+	In folder /remote/curtis/baidu/webmd-processed/list-graph/
+	Run: cat hasItem.cfacts | awk -F '\t' '{print $2}' > listID.txt
+
+
+
+#####2015 July 11#####
+
+#####1. NLM section detection and formatting result: /remote/curtis/baidu/mingyanl/0629/result/result2
+
+2. Get a mapping from list ID to unique setence ID.
+	Code: /remote/curtis/baidu/webmd-processed/webmd/Preprocess/mingyang/UniqIDMapping
+	Run: java webmd.Preprocess.mingyang.UniqIDMapping webmd_export-2015-06-08T19-34-11_sent_code_parsed.txt list-graph/listID.txt listID_SentID_Map.txt
+
+3. Augment the drug name (generic name first, if no exist, brand name) to the list item in the bipartite graph
+	Code: /remote/curtis/baidu/webmd-processed/webmd/Preprocess/DrugAugmentGraph.java
+	Run: java webmd.Preprocess.DrugAugmentGraph list-graph/hasItem.cfacts list-graph/inList.cfacts listID_SentID_Map.txt webmd_export-2015-06-08T19-34-11_sentId_info.txt list-graph/hasItem.cfacts.aug list-graph/inList.cfacts.aug
+	Output: list-graph/hasItem.cfacts.aug list-graph/inList.cfacts.aug
+
+
+4. Get hasFeature.cfacts and featureOf.cfacts files
+	Code: /remote/curtis/baidu/webmd-processed/webmd/Preprocess/GraphFeature.java
+	Run: java webmd.Preprocess.GraphFeature ./list-tok-feat/all-list/bow_context.tok_feat listID_SentID_Map.txt webmd_export-2015-06-08T19-34-11_sentId_info.txt list-graph/hasItem.cfacts.aug drug-item-feature/hasFeature.cfacts drug-item-feature/featureOf.cfacts
+	Output: drug-item-feature/hasFeature.cfacts drug-item-feature/featureOf.cfacts
+
+
+
+For Mingyang
+
+[share folder]
+
+1. Filter the multi-relation freebase seeds. 
+Split single-relation seeds into three parts, 50% for coverage testing, 10% for generating classification testing list with proppr, and 40% for  generating classification training list with proppr. 
+[code]
+
+2. Random different percentages of training seeds in each run [0-10]
+
+[code]
+
+3. Run SSL with proppr:
+
+New proppr program: ssl_LP.ppr
+sim(X,Y) :- inList(X,L),hasItem(L,Y).
+sim(L,M) :- hasItem(L,X),inList(X,M).
+sim(X,Y) :- hasFeature(X,F),featureOf(F,Y).
+predict(T,X) :- seed(T,X).
+predict(T,X) :- predict(T,Y),sim(Y,X).
+predictList(T,L) :- predict(T,X),inList(X,L).
+predict(T,X) :- predictList(T,L),hasItem(L,X).
+
+
+proppr set --programFiles ssl_LP.wam:seeds.cfacts:webmd-processed/list-graph/hasItem.cfacts.aug:webmd-processed/list-graph/inList.cfacts.aug:webmd-processed/drug-item-feature/featureOf.cfacts:webmd-processed/drug-item-feature/hasFeature.cfacts
+
+4. Generate example of length 1+ lists for classification with the solution of PROPPR, i.e. testList.solutions.txt
+
+5. Generating the different types tok features of length 1+ lists
+
+6. merge the tok feature files of length 1+ lists in ALL combination
+
+7. Generate feature vectors of length 1+ lists  for the training files
+
+8. Generate feature vectors of length 1+ lists  for the testing files
+
+
+================================
+
+
+		
+2. Preprocess the NLM data data with section detected, in the same way as for webmd
+	NLM data with section: /remote/curtis/baidu/mingyanl/0629/result
+	see the folder: /remote/curtis/baidu/NLM-processed and its run_pipeline.sh
