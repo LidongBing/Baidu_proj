@@ -60,11 +60,10 @@ For Mingyang
 
 1. Filter the multi-relation freebase seeds. 
 Split single-relation seeds into three parts, 50% for coverage testing, 10% for generating classification testing list with proppr, and 40% for  generating classification training list with proppr. 
-[code]
+Code: HoldoutDevelop and PropprSeedForTrainTestList
 
 2. Random different percentages of training seeds in each run [0-10]
-
-[code]
+Code: DiffPropprSeedForTrainList
 
 3. Run SSL with proppr:
 
