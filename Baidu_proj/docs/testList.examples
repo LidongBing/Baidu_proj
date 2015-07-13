@@ -1,0 +1,4 @@
+predictList(condition_this_may_prevent,X)
+predictList(disease_or_condition_caused,X)
+predictList(symptom_of,X)
+predictList(used_to_treat,X)

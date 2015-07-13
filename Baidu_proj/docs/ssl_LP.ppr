@@ -1,0 +1,7 @@
+sim(X,Y) :- inList(X,L),hasItem(L,Y).
+sim(L,M) :- hasItem(L,X),inList(X,M).
+sim(X,Y) :- hasFeature(X,F),featureOf(F,Y).
+predict(T,X) :- seed(T,X).
+predict(T,X) :- predict(T,Y),sim(Y,X).
+predictList(T,L) :- predict(T,X),inList(X,L).
+predict(T,X) :- predictList(T,L),hasItem(L,X).
