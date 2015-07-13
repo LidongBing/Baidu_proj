@@ -1,4 +1,4 @@
-package freebase;
+package freebaseSeedExtraction;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -16,7 +16,7 @@ public class SeperateSingleMultiRelation {
 	 * args[3] all relation file with "," split.
 	 */
 	public static void main(String[] args) throws IOException {
-		String basePath="/remote/curtis/baidu/mingyanl/0707/relationSeed/seed_seperated/";
+		String basePath="/remote/curtis/baidu/mingyanl/pipe_line/relationSeed/seed_seperated/";
 		HashMap<String,ArrayList<String>> all =new HashMap<String,ArrayList<String>>();
 		HashMap<String,BufferedWriter> outFileList =new HashMap<String,BufferedWriter>();
 		String[] relations = args[3].split(",");

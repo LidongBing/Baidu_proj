@@ -8,7 +8,7 @@ This is a file to record the working precedure of the relation extraction pipeli
 1. Run GPig to process "/remote/curtis/baidu/webmd-processed/webmd_export-2015-06-08T19-34-11_sent_code_parsed.txt" for coord lists and trivial lists ( or length 1+ lists)
 	Code: webmd-processed/gpig/listmalt.py
 	Run with: webmd-processed/gpig/run_listmalt.sh
-	Output: ./gpig/gpig_view/listsWithItems.gp ./gpig/gpig_view/listsAsGraph.gp, ./gpig/gpig_view/listsWithDFeats.gp ./gpig/gpig_view/listWithCFeats.gp, ./gpig/gpig_view/readableLists.gp, 
+	Output: ./gpig/gpig_views/listsWithItems.gp ./gpig/gpig_views/listsAsGraph.gp, ./gpig/gpig_views/listsWithDFeats.gp ./gpig/gpig_views/listWithCFeats.gp, ./gpig/gpig_views/readableLists.gp, 
 
 	Conclusion: get 498867 lists
 	
@@ -57,27 +57,28 @@ This is a file to record the working precedure of the relation extraction pipeli
 For Mingyang
 
 [share folder]
+1 Get RelationSeed and Filter the multi-relation freebase seeds.
+	Code: /remote/curtis/baidu/mingyanl/pipe_line/relationSeed/code/get_relation_with_name.sh /remote/curtis/baidu/mingyanl/0707/relationSeed/code/get_relation_with_name.sh 
+	Run:1) bash get_relation_with_name.sh ("symptom_of" "condition_this_may_prevent"  "disease_or_condition_caused"  "symptom_of"  "used_to_treat")
+	Run:2) bash sep_single_multi_relation.sh
+	Output: /remote/curtis/baidu/mingyanl/pipe_line/relationSeed/seed_seperated/
 
-1. Filter the multi-relation freebase seeds. 
+2. Split seed for evalution and develop and generate seeds for 10 runs and different percentages
 Split single-relation seeds into three parts, 50% for coverage testing, 10% for generating classification testing list with proppr, and 40% for  generating classification training list with proppr. 
-Code: HoldoutDevelop and PropprSeedForTrainTestList
+Random different percentages of training seeds in each run [0-10]
 
-2. Random different percentages of training seeds in each run [0-10]
-Code: DiffPropprSeedForTrainList
+	Code: HoldoutDevelop and PropprSeedForTrainTestList
+	Run: bash /remote/curtis/baidu/mingyanl/pipe_line/single_runs/java_code_for_split_seed
+	Output:/remote/curtis/baidu/mingyanl/pipe_line/single_runs/
 
 3. Run SSL with proppr:
-
-New proppr program: ssl_LP.ppr
-sim(X,Y) :- inList(X,L),hasItem(L,Y).
-sim(L,M) :- hasItem(L,X),inList(X,M).
-sim(X,Y) :- hasFeature(X,F),featureOf(F,Y).
-predict(T,X) :- seed(T,X).
-predict(T,X) :- predict(T,Y),sim(Y,X).
-predictList(T,L) :- predict(T,X),inList(X,L).
-predict(T,X) :- predictList(T,L),hasItem(L,X).
-
-
-proppr set --programFiles ssl_LP.wam:seeds.cfacts:webmd-processed/list-graph/hasItem.cfacts.aug:webmd-processed/list-graph/inList.cfacts.aug:webmd-processed/drug-item-feature/featureOf.cfacts:webmd-processed/drug-item-feature/hasFeature.cfacts
+	InPut:	cfacts_files:featureOf.cfacts  hasFeature.cfacts  hasItem.cfacts  inList.cfacts (4 cfacts file)
+			single_runs (all needed seeds file for 10 runs)
+			ssl_LP.ppr(rule file)  
+			testBoth.examples  test.examples  testList.examples (3 test file)
+	Code: run_diff-runs.sh
+	Run: . run_diff-runs.sh
+	Output: diff-runs/
 
 4. Generate example of length 1+ lists for classification with the solution of PROPPR, i.e. testList.solutions.txt
 
