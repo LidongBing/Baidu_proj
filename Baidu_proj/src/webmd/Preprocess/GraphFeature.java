@@ -24,8 +24,8 @@ import java.util.HashMap;
  * 
  * 
  * output:
- * headFeature.cfacts: hasFeature <TAB> genericName@item <TAB> feature
- * featureOf.cfacts: featureOf <TAB> feature <TAB> genericName@item
+ * headFeature.cfacts: hasFeature <TAB> genericName@item <TAB> feature@item
+ * featureOf.cfacts: featureOf <TAB> feature@item <TAB> genericName@item
  */
 
 public class GraphFeature {
