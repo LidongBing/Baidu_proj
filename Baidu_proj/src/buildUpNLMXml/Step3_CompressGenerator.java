@@ -1,4 +1,4 @@
-package buildUpFreeBaseXml;
+package buildUpNLMXml;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

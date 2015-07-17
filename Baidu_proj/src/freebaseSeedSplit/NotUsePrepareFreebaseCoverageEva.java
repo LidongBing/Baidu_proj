@@ -1,4 +1,4 @@
-package processSeedForRun;
+package freebaseSeedSplit;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -19,7 +19,7 @@ import java.util.HashSet;
  * Equally, use the file in cleanedSeed folder as base, and remove the instances in 
  * singleClass/runs/x/disease_devel_50p
  */
-public class PrepareFreebaseCoverageEva {
+public class NotUsePrepareFreebaseCoverageEva {
 	public static HashMap<String, String> labelMap = new HashMap<String, String>();
 	static {
 		labelMap.put("disease", "1");

@@ -1,4 +1,4 @@
-package processSeedForRun;
+package freebaseSeedSplit;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -10,7 +10,7 @@ import java.util.HashMap;
 /*
  * Clean the seeds that may be noise, also generate the seed files that only contain single class seeds
  */
-public class SeedCleaner {
+public class NotUseSeedCleaner {
 
 	public static HashMap<String, Integer> seedFreMap = new HashMap<String, Integer>();
 

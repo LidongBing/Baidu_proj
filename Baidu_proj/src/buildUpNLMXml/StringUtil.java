@@ -1,4 +1,4 @@
-package buildUpFreeBaseXml;
+package buildUpNLMXml;
 
 public class StringUtil {
 	// for remove number before title

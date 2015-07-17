@@ -1,3 +1,0 @@
-#!/bin/bash
-javac SeperateSingleMultiRelation.java
-java SeperateSingleMultiRelation ../seed/allSeed all_single all_multi symptom_of,condition_this_may_prevent,used_to_treat,disease_or_condition_caused

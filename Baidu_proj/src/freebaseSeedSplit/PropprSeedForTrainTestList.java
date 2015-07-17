@@ -1,32 +1,27 @@
-package processSeedForRun;
+package freebaseSeedSplit;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
 /*
- * Generate heldout set and development set
+ * Generate two seed sets, one set is used to get training list set from proppr,
+ * another set is to get testing list set
  */
-public class HoldoutDevelop {
+public class PropprSeedForTrainTestList {
 
 	public static void main(String[] args) throws IOException {
-		String basePath = "/remote/curtis/baidu/mingyanl/pipe_line/";
-		String[] types = { "condition_this_may_prevent", "disease_or_condition_caused", "symptom_of", "used_to_treat" };
-		double holdPercent = 0.5;
-
-		if (!new File(basePath + "single_runs/").exists())
-			new File(basePath + "single_runs/").mkdir();
+		String runPath=args[0];
+		String[] relations = args[1].split(",");
+		double testPercent = 0.2; // total's 10%, since the development set contains 50% of total
 		for (int run = 0; run < 10; run++) {
-			if (!new File(basePath + "single_runs/" + run + "/").exists())
-				new File(basePath + "single_runs/" + run + "/").mkdir();
-			for (int i = 0; i < types.length; i++) {
-				String infileName = basePath + "relationSeed/seed_seperated/" + types[i] + "_single";
-				String out1 = basePath + "single_runs/" + run + "/" + types[i] + "_single" + "_eval";
-				String out2 = basePath + "single_runs/" + run + "/" + types[i] + "_single" + "_devel";
-				generate(types[i], infileName, holdPercent, out1, out2);
+			for (String relation : relations) {
+				String inputFile = runPath + run + "/" + relation + "_single" + "_devel";
+				String out1 = inputFile + "_seed_for_test";
+				String out2 = inputFile + "_seed_for_train";
+				generate(relation, inputFile, testPercent, out1, out2);
 			}
 		}
 	}

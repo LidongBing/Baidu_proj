@@ -1,4 +1,4 @@
-package freebaseSeedExtraction;
+package freebaseSeedExtract;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RelationFreq {
+public class NotUseRelationFreq {
 
 	public static void main(String[] args) throws IOException {
 		HashMap<String, Integer> count = new HashMap<>();

@@ -1,4 +1,4 @@
-package processSeedForRun;
+package freebaseSeedSplit;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -12,25 +12,18 @@ import java.io.IOException;
 public class DiffPropprSeedForTrainList {
 
 	public static void main(String[] args) throws IOException {
-		String basePath = "/remote/curtis/baidu/mingyanl/pipe_line/";
-		String[] types = { "condition_this_may_prevent", "disease_or_condition_caused", "symptom_of", "used_to_treat" };
-		double[] percentage = { 0.025, 0.075, 0.125, 0.25, 0.5, 0.75, 1 };
-		String[] devSeedFiles = new String[types.length];
-		String suffix = "_devel_50p_proppr_seed_forTrainList";
-		for (int i = 0; i < types.length; i++) {
-			devSeedFiles[i] = types[i] + suffix;
-		}
-
+		String runPath = args[0];
+		double[] percentage = { 0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1 };
+		String[] relations = args[1].split(",");
 		for (int run = 0; run < 10; run++) {
-			for (int i = 0; i < types.length; i++) {
+			for (String relation : relations) {
 				for (double per : percentage) {
-					String infileName = basePath + "single_runs/" + run + "/" + types[i] + "_single_devel_seed_for_train";
+					String infileName = runPath + run + "/" + relation + "_single_devel_seed_for_train";
 					String outFile = infileName + "_" + per * 100 + "p";
-					generate(types[i], infileName, per, outFile);
+					generate(relation, infileName, per, outFile);
 				}
 			}
 		}
-
 	}
 
 	public static void generate(String type, String infileName, double percetage, String out1) throws IOException {
