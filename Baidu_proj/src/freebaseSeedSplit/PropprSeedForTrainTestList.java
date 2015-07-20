@@ -5,6 +5,8 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Random;
 
 /*
  * Generate two seed sets, one set is used to get training list set from proppr,
@@ -13,9 +15,10 @@ import java.io.IOException;
 public class PropprSeedForTrainTestList {
 
 	public static void main(String[] args) throws IOException {
-		String runPath=args[0];
+		String runPath = args[0];
 		String[] relations = args[1].split(",");
-		double testPercent = 0.2; // total's 10%, since the development set contains 50% of total
+		double testPercent = 0.2; // total's 10%, since the development set
+									// contains 50% of total
 		for (int run = 0; run < 10; run++) {
 			for (String relation : relations) {
 				String inputFile = runPath + run + "/" + relation + "_single" + "_devel";
@@ -26,35 +29,36 @@ public class PropprSeedForTrainTestList {
 		}
 	}
 
-	public static void generate(String type, String infileName, double percetage, String out1, String out2) throws IOException {
+	public static void generate(String type, String infileName, double percentage, String out1, String out2) throws IOException {
+		ArrayList<String> firstList = new ArrayList<>();
 		BufferedWriter bw1 = new BufferedWriter(new FileWriter(out1));
 		BufferedWriter bw2 = new BufferedWriter(new FileWriter(out2));
 		BufferedReader br = new BufferedReader(new FileReader(infileName));
-
-		String line = br.readLine();
-		while (line != null) {
-			line = line.toLowerCase();
-
-			if (keep(percetage)) {
-				bw1.write(line);
-				bw1.newLine();
-			}
-			else {
-				bw2.write(line);
-				bw2.newLine();
-			}
-			line = br.readLine();
+		String line = null;
+		while ((line = br.readLine()) != null) {
+			firstList.add(line);
 		}
-
+		br.close();
+		ArrayList<String> secondList = split(percentage, firstList);
+		for (String str1 : firstList) {
+			bw1.write(str1 + "\n");
+		}
+		for (String str2 : secondList) {
+			bw2.write(str2 + "\n");
+		}
 		bw1.close();
 		bw2.close();
-		br.close();
 	}
 
-	static boolean keep(double per) {
-		if ((Math.random() <= per))
-			return true;
-		return false;
+	static ArrayList<String> split(double percentage, ArrayList<String> lines) {
+		ArrayList<String> secondList = new ArrayList<>();
+		Random rand = new Random();
+		int size = lines.size();
+		int removeTime = (int) (size * (1 - percentage));
+		for (int i = 0; i < removeTime; i++) {
+			int index = rand.nextInt(size - i);
+			secondList.add(lines.remove(index));
+		}
+		return secondList;
 	}
-
 }

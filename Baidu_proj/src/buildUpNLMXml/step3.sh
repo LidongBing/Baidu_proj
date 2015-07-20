@@ -2,7 +2,11 @@
 #counts=(2 5 10 100 200 500 1000)
 #for count in ${counts[@]}
 #do
-count=$1
-  java -jar CompressRun.jar /remote/curtis/baidu/mingyanl/0629/code/step1/out/aggregate ${count} compress/mapping_${count} compress/count_${count} ../step1/uniq
-  sort -t $'\t' -rnk2,2 compress/count_${count} > compress/sort_${count}
+if [ ! -d "compress_${1}" ]
+then
+  mkdir "compress_${1}"
+fi
+javac Step3_CompressGenerator.java
+java Step3_CompressGenerator ${1} ../step2/count_reduced ../step2/mapping_uniq compress_${1}/mapping_${1} compress_${1}/count_${1}
+sort -t $'\t' -rnk2,2 compress_${1}/count_${1} > compress_${1}/count_sorted_${1}
 #done

@@ -12,20 +12,21 @@ import java.util.TreeMap;
 public class Step3_CompressGenerator {
 
 	/*
-	 * arg[0] is inputFile: original (title<tab>count) file which has inlcude all count result
-	 * arg[1] is int number: the minimal frequent limitation
-	 * arg[2] is outputFile: outputMapping file which has reflect low frequent title to high frequent title
-	 * arg[3] is outputFile: countFile has put low frequent title to high frequent title.
-	 * arg[4] is inputFile: this mapping file which is original (title<tab>title) file.
+	 * arg[0] is int number: the minimal frequent limitation
+	 * arg[1] is inputFile: original (title<tab>count) file which has inlcude all count result
+	 * arg[2] is inputFile: this mapping file which is original (title<tab>title) file.
+	 * arg[3] is outputFile: outputMapping file which has reflect low frequent title to high frequent title
+	 * arg[4] is outputFile: countFile has put low frequent title to high frequent title.
+	
 	 * 
 	 */
 	public static void main(String[] args) throws IOException {
-		String oriCountFile = args[0];
-		int boundary = Integer.parseInt(args[1]);
-		String mappingFile = args[2];
-		String countFile = args[3];
+		String oriCountFile = args[1];
+		int boundary = Integer.parseInt(args[0]);
+		String mappingFile = args[3];
+		String countFile = args[4];
 		CompressGenerator g = new CompressGenerator(oriCountFile, boundary, mappingFile, countFile);
-		g.compress(args[4]);
+		g.compress(args[2]);
 	}
 
 }
