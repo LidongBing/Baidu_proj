@@ -1,0 +1,190 @@
+This is a file to record the working precedure of the relation extraction pipeline.
+
+#####2015 July 1#####
+1. Preprocess webmd, see the folder: /remote/curtis/baidu/webmd-processed, its readme.txt, and run_pipeline.sh
+
+
+#####2015 July 7#####
+1. Run GPig to process "/remote/curtis/baidu/webmd-processed/webmd_export-2015-06-08T19-34-11_sent_code_parsed.txt" for coord lists and trivial lists ( or length 1+ lists)
+   Code: webmd-processed/gpig/listmalt.py
+   Run with: webmd-processed/gpig/run_listmalt.sh
+   Output: ./gpig/gpig_views/listsWithItems.gp ./gpig/gpig_views/listsAsGraph.gp, ./gpig/gpig_views/listsWithDFeats.gp ./gpig/gpig_views/listWithCFeats.gp, ./gpig/gpig_views/readableLists.gp, 
+
+   Conclusion: get 498867 lists
+   
+
+2. Generate trivial list and coord list tok features and bipartite graph by postprocessing the gpig output
+   Code: webmd-processed/gpig/PostProcessGPig
+   Run With: webmd-processed/gpig/run_PostProcessGPig.sh
+   Output: webmd-processed/list-tok-feat/all-list/
+           webmd-processed/list-graph/
+
+
+
+#####2015 July 10#####
+1. Get the brand name, generic name, and section title for each unique sentence ID
+   Code: java webmd.Preprocess.SentIDSecMapping webmd_export-2015-06-08T19-34-11_re_clean_ss_code.xml webmd_export-2015-06-08T19-34-11_sentId_info.txt
+   Output: webmd_export-2015-06-08T19-34-11_sentId_info.txt
+
+2. Get the list IDs in the form s_xx_yy from hasItem file of webmd.
+   In folder /remote/curtis/baidu/webmd-processed/list-graph/
+   Run: cat hasItem.cfacts | awk -F '\t' '{print $2}' > listID.txt
+
+
+
+#####2015 July 11#####
+
+#####1. webmd section detection and formatting result: /remote/curtis/baidu/mingyanl/0629/result/result2
+
+2. Get a mapping from list ID to unique setence ID.
+   Code: /remote/curtis/baidu/webmd-processed/webmd/Preprocess/mingyang/UniqIDMapping
+   Run: java webmd.Preprocess.mingyang.UniqIDMapping webmd_export-2015-06-08T19-34-11_sent_code_parsed.txt list-graph/listID.txt listID_SentID_Map.txt
+
+3. Augment the drug name (generic name first, if no exist, brand name) to the list item in the bipartite graph
+   Code: /remote/curtis/baidu/webmd-processed/webmd/Preprocess/DrugAugmentGraph.java
+   Run: java webmd.Preprocess.DrugAugmentGraph list-graph/hasItem.cfacts list-graph/inList.cfacts listID_SentID_Map.txt webmd_export-2015-06-08T19-34-11_sentId_info.txt list-graph/hasItem.cfacts.aug list-graph/inList.cfacts.aug
+   Output: list-graph/hasItem.cfacts.aug list-graph/inList.cfacts.aug
+
+
+4. Get hasFeature.cfacts and featureOf.cfacts files
+   Code: /remote/curtis/baidu/webmd-processed/webmd/Preprocess/GraphFeature.java
+   Run: java webmd.Preprocess.GraphFeature ./list-tok-feat/all-list/bow_context.tok_feat listID_SentID_Map.txt webmd_export-2015-06-08T19-34-11_sentId_info.txt list-graph/hasItem.cfacts.aug drug-item-feature/hasFeature.cfacts drug-item-feature/featureOf.cfacts
+   Output: drug-item-feature/hasFeature.cfacts drug-item-feature/featureOf.cfacts
+
+================================
+
+For Mingyang
+
+#NLM xml build
+
+root path: /remote/curtis/baidu/relation-extraction/unit0_build_nlm_xml
+
+1. Filter out all section title and get mapping and count files
+   Input file: /remote/curtis/rgoutam/baidu_data/prescription/*
+   Get output: result/mapping_repl, out/*
+   Code: code/buildUpNLMXml.Step1_FilterSectionTitle.java
+   Run with: code/step1.sh [arg1] (arg1: number 0-24 to run 25 files same time eg. ste1.sh 0)
+
+2. Get unique mapping result, compress section count files, aggregate count.
+   Input file: result/mapping_repl, result/out/*
+   Get output: result/mapping_uniq, result/count_sparse, result/count_reduced
+   Code: code/buildUpNLMXml.Step2_AggregateCount.java
+   Run with: code/step2.sh
+
+3. Compress section titles and get new mapping and count file
+   Input files: result/count_reduced, result/mapping_uniq
+   Get output: result/compress_${1}/count_sorted_${1}, result/compress_${1}/mapping_${1}
+   Code: code/buildUpNLMXml.Step3_CompressGenerator.java
+   Run with: code/step3.sh arg1 (arg1: the lower bound of count eg. step3.sh 28)
+
+4. Build up xml based on new section title and arragement
+   Input files:/remote/curtis/rgoutam/baidu_data/prescription/*, result/compress_${1}/mapping_${1}
+   Get output: result/xml_files_${1}/${line}
+   Code: code/buildUpNLMXml.Step4_BuildUpXml.java
+   Run with: codestep4.sh arg1 (arg1: the lower bound of count eg. step4.sh 28)
+
+================================
+
+# NLM process
+
+root path: /remote/curtis/baidu/relation-extraction/unit0_process_nlm_xml
+
+1. First merge all xml, Second sentence split for aggregated xml by geniass, Third generate unique id for sentence while output xml with sentence id and the mapping between sentence id and sentence, Fourth get dependency tree by gdep
+   Input files: ../unit0_build_nlm_xml/result/xml_files_30/
+   Get output: NLM_all_drugs_ss_code.xml, NLM_all_drugs_sent_code.txt, NLM_all_drugs_sent_code_parsed.txt
+   Code: webmd.Preprocess/* 
+   Run with: run_pipeline.sh
+
+================================
+
+
+#Seed preprocessing
+
+root path: /remote/curtis/baidu/relation-extraction/unit1_build_seed
+1. Extract seeds from freebase
+   Code: step1_extract_seed/*
+   Run: step1_extract_seed/step1.sh
+   Output: seed_file/seed_extracted/*
+
+2. Match seeds to cfacts. So there are more valid seeds when run proppr
+   Code: step2_match_seed/*
+   Run: step2_match_seed/run1.sh, step2_match_seed/run2.sh
+   Output: seed_file/seed_matched/*
+
+3. First seperate file into single and multi, Second split single seed file into develop and evalution part(1:1), Third split develop seed to test and train(1:4) for 10 runs.
+   Code: step3_split_seed/*
+   Run: step3_split_seed/run.sh
+   Output: seed_file/seed_seperated/*
+ 
+================================
+
+#Run proppr
+
+root path: /remote/curtis/baidu/relation-extraction/unit2_run_proppr
+
+1. Run SSL with proppr:
+   InPut:cfacts_files:featureOf.cfacts  hasFeature.cfacts  hasItem.cfacts  inList.cfacts (4 cfacts file)
+         seed_files (all needed seeds file for 10 runs)
+         ssl_LP.ppr(rule file)  
+         testBoth.examples  test.examples  testList.examples (3 test file)
+   Code: code/run_diff-runs.sh
+   Run: code/run_diff-runs.sh arg1 arg2 (arg1: start of run, arg2: end of run)
+   Output: diff-runs/*
+
+
+================================
+
+#Generate vector for list
+
+root path: /remote/curtis/baidu/relation-extraction/unit3_build_feat_vect
+
+1. Generate different top lists for classification from the solution of PROPPR, i.e. testList.solutions.txt
+   Code: code/PostprocessSSLSolution/ExtractClassifyExample.java
+   Run:  code/step1_solution_with_diff_top.sh
+   Output:  diff-runs/x/FB_seed_100.0p/top{top}_sol_single_class.exmps
+            diff-runs/x/FB_seed_forTestList/top500_sol_single_class.exmps
+
+2. Generating the different tok features of length 1+ for the test lists and train lists
+   Code: code/ClassifyExample/TokFeature.java
+   Run:  code/step2_solution_with_tok_feat.sh
+   Output:  diff-runs/x/FB_seed_${i}p/top{top}_sol_single_class_$tok_feat
+            diff-runs/x/FB_seed_forTestList/top500_sol_single_class_$tok_feat
+
+3. Merge the tok feature files of different tok feature lists in ALL combination
+   Code: code/ClassifyExample/TokFeatMerger.java
+   Run: code/step3_merge_tok_feat.sh
+   Output:  diff-runs/${run}/FB_seed_${i}p/top${top}_sol_single_class_ALL.tok_feat
+            diff-runs/${run}/FB_seed_forTestList/top${topTestList}_sol_single_class_ALL.tok_feat
+
+4. Generate feature vectors of length 1+ lists  for the training files
+   Code: code/ClassifyExample/TrainFeature.java
+   Run: code/step4_train_feat_vec.sh
+   Output:  diff-runs/${run}/FB_seed_${i}p/top${top}_sol_single_class_posi${label}_ALL.vec
+            diff-runs/${run}/FB_seed_${i}p/top${top}_sol_single_class_ALL.dict
+
+5. Generate feature vectors of length 1+ lists  for the testing files
+   Code: code/ClassifyExample/TestFeature.java
+   Run: code/step5_test_feat_vec.sh
+   Output:  diff-runs/${run}/FB_seed_forTestList/FB_seed_${i}p/top${topTestList}_train_${top}_sol_single_class_posi${label}_ALL.vec
+            diff-runs/${run}/FB_seed_${i}p/top${top}_sol_single_class_ALL.dict ${label}
+
+================================
+
+#SVM training and testing
+
+root path: /remote/curtis/baidu/relation-extraction/unit4_svm_analysis
+
+1. First svm train for different relation vector files, and use test vector files to svm test
+   Code: /remote/curtis/baidu/package/libsvm-3.20/./svm-train, /remote/curtis/baidu/package/libsvm-3.20/./svm-predict
+   Run: code/step1_train_test.sh arg1 arg2 (arg1: start of run, arg2: end of run)
+   Output: model/*, sys_print/*, test_out/*
+
+2.Calculate precision and recall for different precentage and top
+   Run: code/step2_pre_recall.sh
+   Ouput: pre_recall/*
+
+3.Calculate average precision and recall and F1 for different percentage and top
+   Run: code/step3_pre_recall_average.sh
+   Output: pre_recall_av
+
+================================
