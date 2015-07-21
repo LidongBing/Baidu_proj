@@ -24,8 +24,8 @@ import java.util.HashMap;
  * 
  * 
  * output:
- * headFeature.cfacts: hasFeature <TAB> genericName@item <TAB> feature
- * featureOf.cfacts: featureOf <TAB> feature <TAB> genericName@item
+ * headFeature.cfacts: hasFeature <TAB> genericName@item <TAB> feature@item
+ * featureOf.cfacts: featureOf <TAB> feature@item <TAB> genericName@item
  */
 
 public class GraphFeature {
@@ -52,12 +52,14 @@ public class GraphFeature {
 		String line = null;
 
 		String listID = null;
+		String listDrugItem = null;
 		String listItem = null;
 		String bowContext = null;
 		String secTitle = null;
 		while ((line = brHasItem.readLine()) != null) {
 			listID = line.split("\t")[1];
-			listItem = line.split("\t")[2];
+			listDrugItem = line.split("\t")[2];
+			listItem = listDrugItem.substring(listDrugItem.indexOf('@') + 1);
 
 			bowContext = listID_bowContext_Map.get(listID);
 			try {
@@ -71,9 +73,11 @@ public class GraphFeature {
 			String tmp = bowContext + " " + secTitle;
 			String[] toks = tmp.split("\\s+");
 			for (String tok : toks) {
-				bwHasFeature.write("hasFeature\t" + listItem + "\t" + tok);
+				bwHasFeature.write("hasFeature\t" + listDrugItem + "\t" + tok
+						+ "@" + listItem);
 				bwHasFeature.newLine();
-				bwFeatureOf.write("featureOf\t" + tok + "\t" + listItem);
+				bwFeatureOf.write("featureOf\t" + tok + "@" + listItem + "\t"
+						+ listDrugItem);
 				bwFeatureOf.newLine();
 			}
 		}
