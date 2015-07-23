@@ -2,10 +2,12 @@ package webmd.Preprocess;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /*
  * Generate hasFeature and featureOf files.
@@ -33,10 +35,10 @@ public class GraphFeature {
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 
-		if (args.length != 6) {
+		if (args.length != 7) {
 			System.out
-					.println("ERROR: please give six parameters: bow_context.tok_feat, listID_SentID_Map.txt, sentId_info.txt, "
-							+ "and hasItem.cfacts.aug, for input,  hasFeature.cfacts and featureOf.cfacts, for output.");
+					.println("ERROR: please give seven parameters: bow_context.tok_feat, listID_SentID_Map.txt, sentId_info.txt, "
+							+ "and hasItem.cfacts.aug, for input,  hasFeature.cfacts and featureOf.cfacts, for output, and stopWord file");
 			System.exit(0);
 		}
 
@@ -48,6 +50,8 @@ public class GraphFeature {
 		BufferedWriter bwHasFeature = new BufferedWriter(
 				new FileWriter(args[4]));
 		BufferedWriter bwFeatureOf = new BufferedWriter(new FileWriter(args[5]));
+
+		HashSet<String> stopword = loadStopWord(args[6]);
 
 		String line = null;
 
@@ -73,6 +77,8 @@ public class GraphFeature {
 			String tmp = bowContext + " " + secTitle;
 			String[] toks = tmp.split("\\s+");
 			for (String tok : toks) {
+				if (stopword.contains(tok))
+					continue;
 				bwHasFeature.write("hasFeature\t" + listDrugItem + "\t" + tok
 						+ "@" + listItem);
 				bwHasFeature.newLine();
@@ -85,6 +91,20 @@ public class GraphFeature {
 		bwFeatureOf.close();
 		brHasItem.close();
 
+	}
+
+	public static HashSet<String> loadStopWord(String file) throws IOException {
+		HashSet<String> ret = new HashSet<String>();
+
+		BufferedReader br = new BufferedReader(new FileReader(file));
+
+		String line = null;
+		while ((line = br.readLine()) != null) {
+			ret.add(line.trim().toLowerCase());
+			ret.add("bowContext=" + line.trim().toLowerCase());
+		}
+		br.close();
+		return ret;
 	}
 
 	public static HashMap<String, String> loadTwoColumnMap(String file)
