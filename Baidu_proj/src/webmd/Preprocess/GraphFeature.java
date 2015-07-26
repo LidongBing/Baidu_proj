@@ -44,7 +44,7 @@ public class GraphFeature {
 
 		HashMap<String, String> listID_bowContext_Map = loadTwoColumnMap(args[0]);
 		HashMap<String, String> listID_SentID_Map = loadTwoColumnMap(args[1]);
-		HashMap<String, String> sentID_sectTitle_Map = loadSecTitleMap(args[2]);
+		HashMap<String, StringBuffer> sentID_sectTitle_Map = loadSecTitleMap(args[2]);
 
 		BufferedReader brHasItem = new BufferedReader(new FileReader(args[3]));
 		BufferedWriter bwHasFeature = new BufferedWriter(
@@ -60,6 +60,7 @@ public class GraphFeature {
 		String listItem = null;
 		String bowContext = null;
 		String secTitle = null;
+		HashSet<String> tmpSet = null;
 		while ((line = brHasItem.readLine()) != null) {
 			listID = line.split("\t")[1];
 			listDrugItem = line.split("\t")[2];
@@ -67,16 +68,21 @@ public class GraphFeature {
 
 			bowContext = listID_bowContext_Map.get(listID);
 			try {
-				secTitle = sentID_sectTitle_Map
-						.get(listID_SentID_Map.get(listID))
-						.replaceAll("\\s+", "_").toLowerCase().trim();
+				secTitle = sentID_sectTitle_Map.get(
+						listID_SentID_Map.get(listID)).toString();
 			} catch (Exception e) {
 				System.out.println(line);
 				continue;
 			}
 			String tmp = bowContext + " " + secTitle;
 			String[] toks = tmp.split("\\s+");
+			tmpSet = new HashSet<String>();
 			for (String tok : toks) {
+				if (tmpSet.contains(tok))
+					continue;
+				else
+					tmpSet.add(tok);
+
 				if (stopword.contains(tok))
 					continue;
 				bwHasFeature.write("hasFeature\t" + listDrugItem + "\t" + tok
@@ -123,17 +129,28 @@ public class GraphFeature {
 		return retMap;
 	}
 
-	public static HashMap<String, String> loadSecTitleMap(String file)
+	public static HashMap<String, StringBuffer> loadSecTitleMap(String file)
 			throws IOException {
-		HashMap<String, String> retMap = new HashMap<String, String>();
+		HashMap<String, StringBuffer> retMap = new HashMap<String, StringBuffer>();
 		BufferedReader br = new BufferedReader(new FileReader(file));
 
 		String line = null;
+		String[] toks = null;
+		String title = null;
 		while ((line = br.readLine()) != null) {
+			toks = line.split("\t");
+
+			if (!retMap.containsKey(toks[0]))
+				retMap.put(toks[0], new StringBuffer());
+
 			if (!line.split("\t")[3].equals("null"))
-				retMap.put(line.split("\t")[0], line.split("\t")[3]);
+				title = line.split("\t")[3];
 			else
-				retMap.put(line.split("\t")[0], "");
+				title = "";
+
+			retMap.get(toks[0]).append(
+					" " + title.trim().replaceAll("\\s+", "_").toLowerCase());
+
 		}
 		br.close();
 		return retMap;

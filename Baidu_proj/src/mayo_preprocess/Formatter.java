@@ -50,7 +50,7 @@ public class Formatter {
 
 	public static void main(String[] args) throws Exception {
 		// TODO Auto-generated method stub
-//		System.out.println("a  b".replaceAll("  ", " "));
+		// System.out.println("a  b**c".replaceAll("\\*\\*", " "));
 		if (args.length != 2) {
 			System.out
 					.println("ERROR: please give two parameters: inputfile, and outputfile.");
@@ -114,9 +114,14 @@ public class Formatter {
 									newSection.appendChild(newDoc
 											.createTextNode("## "
 													+ sectionTitle));
-									sectionText = sectionText.replaceAll("  ", " ");
-									sectionText = sectionText.replaceAll("\\n", " ");
-									sectionText = sectionText.replaceAll("  ", "\n");
+									sectionText = sectionText.replaceAll("  ",
+											" ");
+									sectionText = sectionText.replaceAll("\\n",
+											" ");
+									sectionText = sectionText.replaceAll("  ",
+											"\n");
+									sectionText = sectionText.replaceAll(
+											"\\*\\*", " ** ");
 									newSection
 											.appendChild(newDoc
 													.createTextNode("\n"
