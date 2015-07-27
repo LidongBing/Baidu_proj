@@ -7,14 +7,9 @@ accordance
 according
 accordingly
 across
-act
 actually
 added
 adj
-adopted
-affected
-affecting
-affects
 after
 afterwards
 again
@@ -127,7 +122,6 @@ e
 each
 ed
 edu
-effect
 eg
 eight
 eighty
@@ -580,7 +574,6 @@ up
 upon
 ups
 us
-use
 used
 useful
 usefully
