@@ -38,13 +38,20 @@ public class StringUtil {
 	}
 
 	public static String trimText(String input) {
+		String result= input.replaceAll("\u00A0"," ").replaceAll("\\s+", " ").trim();
+		if(result.matches(".*?[.?!]$")){
+			result+="\n";
+		}
+		return result;
+	}
+	public static String multipleTrmText(String input){
 		String[] sentences = input.replaceAll("\u00A0"," ").trim().split("\n");
 		String result = "";
 		for (String sentence : sentences) {
 			String trim = sentence.trim();
 			if (!trim.equals("")) {
 				result += trim;
-				if (trim.matches(".*?[.?!]$")) {
+				if (trim.matches(".*?[,.?!]$")) {
 					result += "\n";
 				}
 				else {
@@ -53,5 +60,6 @@ public class StringUtil {
 			}
 		}
 		return result.trim().replaceAll("\\s+(?=[^\\[\\]]*\\])", " ").replaceAll("\\s+(?=[^()]*\\))", " ").trim();
+
 	}
 }

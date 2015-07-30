@@ -29,7 +29,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class Step4_BuildUpXml {
+public class Step4_BuildUpXmlWithSubsection {
 	/*
 	 * args[0] inputXmlFile args[1] outputXmlFile args[2] mappingFile for title
 	 * translate
@@ -38,13 +38,13 @@ public class Step4_BuildUpXml {
 		if (!args[0].trim().toLowerCase().endsWith(".xml")) {
 			return;
 		}
-		SingleFileBuildWithSubTitle g = new SingleFileBuildWithSubTitle();
+		SingleFileBuildWithSubSection g = new SingleFileBuildWithSubSection();
 		g.calculateFrequency(args[0].trim(), args[2].trim());
 		g.buildUpXml(args[1].trim());
 	}
 }
 
-class SingleFileBuildWithSubTitle {
+class SingleFileBuildWithSubSection {
 	private HashMap<String, ComponentStruct> componentHash = new HashMap<String, ComponentStruct>();
 	private Document document = null;
 	private String drugName = "";
@@ -107,12 +107,12 @@ class SingleFileBuildWithSubTitle {
 		if (node == null) {
 			node = (Node) xPath.compile("/document/component/structuredBody/component/section/subject/manufacturedProduct/manufacturedMedicine/name").evaluate(document, XPathConstants.NODE);
 		}
-		drugName = node.getTextContent().replaceAll("\\s+", " ").trim();
+		drugName = node.getTextContent().trim();
 	}
 
 	private void getGenericName() throws IOException, XPathExpressionException {
 		Node node = (Node) xPath.compile("//*[name() = 'genericMedicine']").evaluate(document, XPathConstants.NODE);
-		genericName = node.getTextContent().replaceAll("\\s+", " ").trim();
+		genericName = node.getTextContent().trim();
 	}
 
 	private void getComponents() throws XPathExpressionException {
@@ -203,13 +203,13 @@ class SingleFileBuildWithSubTitle {
 				sectionE.appendChild(doc.createTextNode(text + '\n'));
 			}
 			for (Map.Entry<String, String> subEntry : entry.getValue().subTextHash.entrySet()) {
-//				Element subSectionE = doc.createElement("subsection");
-//				subSectionE.appendChild(doc.createTextNode("## " + subEntry.getKey() + "\n"));
+				Element subSectionE = doc.createElement("subsection");
+				subSectionE.appendChild(doc.createTextNode("## " + subEntry.getKey() + "\n"));
 				String subText = subEntry.getValue();
 				if (!subText.equals("")) {
-					sectionE.appendChild(doc.createTextNode(subText + "\n"));
+					subSectionE.appendChild(doc.createTextNode(subText + "\n"));
 				}
-//				sectionE.appendChild(subSectionE);
+				sectionE.appendChild(subSectionE);
 			}
 			root.appendChild(sectionE);
 
