@@ -1,4 +1,4 @@
-package freebaseSeedMatch;
+package SeedExtractMatchSplit;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -36,7 +36,7 @@ public class CheckSeedInCfactsFile {
 		String line = null;
 		while ((line = br.readLine()) != null) {
 			String[] tokens = line.split("\t");
-			set.add(tokens[1]);
+			set.add(tokens[2]);
 		}
 		br.close();
 	}

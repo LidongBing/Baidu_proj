@@ -1,4 +1,4 @@
-package freebaseSeedMatch;
+package SeedExtractMatchSplit;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -45,18 +45,18 @@ public class SeedCfactsEditDistance {
 	}
 
 	public static void check() {
-		long begintime = System.currentTimeMillis();
-		int count = 0;
+//		long begintime = System.currentTimeMillis();
+//		int count = 0;
 		for (Map.Entry<String, ArrayList<String>> entry : map.entrySet()) {
-			System.out.println("check key : " + entry.getKey());
+//			System.out.println("check key : " + entry.getKey());
 			ArrayList<String> list = entry.getValue();
 			for (int i = 0; i < list.size(); i++) {
-				count++;
+//				count++;
 				String seedPair = list.get(i);
 				String bestCfacts = null;
 				double bestDistance = Double.MAX_VALUE;
-				System.out.println("seed pair: "+seedPair);
-				System.out.println("count: " + count + "time " + (System.currentTimeMillis() - begintime) / 1000);
+//				System.out.println("seed pair: "+seedPair);
+//				System.out.println("count: " + count + "time " + (System.currentTimeMillis() - begintime) / 1000);
 				for (String cfactsPair : set) {
 					if(seedPair.equals(cfactsPair)){
 						bestCfacts=null;
@@ -71,11 +71,11 @@ public class SeedCfactsEditDistance {
 					}
 				}
 				if (bestCfacts != null) {
-					System.out.println("New seed "+bestCfacts);
+//					System.out.println("New seed "+bestCfacts);
 					reflections.add(entry.getKey() + "\t" + seedPair + "\t" + bestCfacts);
 					list.set(i, bestCfacts);
 				}else{
-					System.out.println("Not change");
+//					System.out.println("Not change");
 				}
 			}
 		}
@@ -120,7 +120,7 @@ public class SeedCfactsEditDistance {
 		String line = null;
 		while ((line = br.readLine()) != null) {
 			String[] tokens = line.split("\t");
-			set.add(tokens[1]);
+			set.add(tokens[2]);
 		}
 		br.close();
 	}

@@ -1,4 +1,4 @@
-package freebaseSeedSplit;
+package SeedExtractMatchSplit;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -22,7 +22,6 @@ public class SeperateSingleMultiRelation {
 		for (String relation : relations) {
 			outFileList.put(relation + "_single", new BufferedWriter(new FileWriter(basePath + relation + "_single")));
 			outFileList.put(relation + "_multi", new BufferedWriter(new FileWriter(basePath + relation + "_multi")));
-
 		}
 		BufferedReader br = new BufferedReader(new FileReader(args[0]));
 		String line = null;
