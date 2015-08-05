@@ -32,16 +32,15 @@ public class CleanWebmdByGenericName {
 
 	public static void main(String[] args) throws ParserConfigurationException, SAXException, IOException, XPathExpressionException, TransformerException {
 		String oriWebmdXml = args[0];
-		String outputCleanXml = args[1];
-		String[] tokens=args[2].split(",");
+		String[] tokens=args[1].split(",");
 		for(String token : tokens){
 			top.add(Integer.valueOf(token));
 		}
 		loadWebmdFile(oriWebmdXml);
-		buildXmlFile(outputCleanXml);
+		buildXmlFile();
 	}
 
-	public static void buildXmlFile(String outXmlFile) throws ParserConfigurationException, TransformerException {
+	public static void buildXmlFile() throws ParserConfigurationException, TransformerException {
 		TransformerFactory transformerFactory = TransformerFactory.newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -60,11 +59,11 @@ public class CleanWebmdByGenericName {
 			root.appendChild(node);
 			count++;
 			if(top.contains(count)){
-				result = new StreamResult(new File(outXmlFile+"/all_clean_"+count+".xml"));
+				result = new StreamResult(new File(count+"/step1_xml_parse/all.xml"));
 				transformer.transform(source, result);
 			}
 		}
-		result = new StreamResult(new File(outXmlFile+"/all_clean.xml"));
+		result = new StreamResult(new File("all/step1_xml_parse/all.xml"));
 		transformer.transform(source, result);
 		System.out.println("output unique generic nodes: "+root.getChildNodes().getLength());
 	}

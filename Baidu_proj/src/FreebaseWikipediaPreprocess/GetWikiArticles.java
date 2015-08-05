@@ -1,7 +1,7 @@
 package FreebaseWikipediaPreprocess;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -22,8 +22,7 @@ public class GetWikiArticles {
 		// System.out.println("b</aaa asdfa>c".replaceAll("<.*>", ""));
 		// System.out.println("b & c".replaceAll("&", "and"));
 		if (args.length != 3) {
-			System.out
-					.println("ERROR: please give the diseaseListFile, wikipediaArticleFile, and outfile.");
+			System.out.println("ERROR: please give the diseaseListFile, wikipediaArticleFile, and outfile.");
 			System.exit(0);
 		}
 		keptArticleNames = loadDiseaseNames(args[0]);
@@ -36,8 +35,7 @@ public class GetWikiArticles {
 		// getArticles(articlefile, outfile);
 	}
 
-	public static void getArticles(String infile, String outfile)
-			throws IOException {
+	public static void getArticles(String infile, String outfile) throws IOException {
 
 		BufferedReader br = new BufferedReader(new FileReader(infile));
 		BufferedWriter bw = new BufferedWriter(new FileWriter(outfile));
@@ -60,8 +58,7 @@ public class GetWikiArticles {
 		System.out.println("disease articles: " + cnt_disease);
 	}
 
-	public static void saveOneArticle(BufferedWriter bw,
-			ArrayList<String> artLines) throws IOException {
+	public static void saveOneArticle(BufferedWriter bw, ArrayList<String> artLines) throws IOException {
 		if (artLines == null || artLines.size() == 0)
 			return;
 		String artName = artLines.get(1);
@@ -73,8 +70,7 @@ public class GetWikiArticles {
 			System.out.println("got disease articles: " + cnt_disease);
 
 		String line0 = artLines.get(0);
-		String url = line0.substring(line0.indexOf("http://"),
-				line0.indexOf("\" title="));
+		String url = line0.substring(line0.indexOf("http://"), line0.indexOf("\" title="));
 
 		bw.write("<item>");
 		bw.newLine();
@@ -86,7 +82,7 @@ public class GetWikiArticles {
 		bw.newLine();
 
 		String prevSection = "Abstract";
-		bw.write("<section>## " + prevSection);
+		bw.write("<"+prevSection.toLowerCase()+">## " + prevSection);
 		bw.newLine();
 		String line;
 		for (int i = 2; i < artLines.size(); i++) {
@@ -94,23 +90,21 @@ public class GetWikiArticles {
 
 			if (line.startsWith(".. ") && line.endsWith(" ..")) {
 				if (prevSection != null) {
-					bw.write("</section>");
+					bw.write("</"+prevSection.replaceAll(" ", "_").toLowerCase()+">");
 					bw.newLine();
 				}
-				prevSection = line.replaceAll("\\.\\.", "").trim();
-				bw.write("<section>");
-				bw.write("## "
-						+ prevSection.replaceAll("<.*>", "").replaceAll("&",
-								"and"));
+				prevSection = line.replaceAll("\\.\\.", "").replaceAll("<.*>", "").replaceAll("&", "and").replaceAll("[^a-zA-Z]+", " ").replaceAll("\\s+", " ").trim();
+				bw.write("<"+prevSection.replaceAll(" ", "_").toLowerCase()+">");
+				bw.write("## " + prevSection);
 				bw.newLine();
-			} else if (!line.trim().equals("</doc>")
-					&& line.trim().length() > 0) {
+			}
+			else if (!line.trim().equals("</doc>") && line.trim().length() > 0) {
 				bw.write(line.replaceAll("<.*>", "").replaceAll("&", "and"));
 				bw.newLine();
 			}
 		}
 		if (prevSection != null) {
-			bw.write("</section>");
+			bw.write("</"+prevSection.replaceAll(" ", "_").toLowerCase()+">");
 			bw.newLine();
 		}
 		bw.write("</item>");
@@ -118,8 +112,7 @@ public class GetWikiArticles {
 
 	}
 
-	public static ArrayList<String> getOneArticle(BufferedReader br)
-			throws IOException {
+	public static ArrayList<String> getOneArticle(BufferedReader br) throws IOException {
 		ArrayList<String> ret = new ArrayList<String>();
 
 		String line = null;
@@ -140,8 +133,7 @@ public class GetWikiArticles {
 		return ret;
 	}
 
-	public static HashSet<String> loadDiseaseNames(String file)
-			throws IOException {
+	public static HashSet<String> loadDiseaseNames(String file) throws IOException {
 		HashSet<String> ret = new HashSet<String>();
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		String line = null;
