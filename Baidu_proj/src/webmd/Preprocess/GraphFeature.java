@@ -35,10 +35,14 @@ public class GraphFeature {
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 
-		if (args.length != 7) {
+		if (args.length != 8) {
 			System.out
-					.println("ERROR: please give seven parameters: bow_context.tok_feat, listID_SentID_Map.txt, sentId_info.txt, "
-							+ "and hasItem.cfacts.aug, for input,  hasFeature.cfacts and featureOf.cfacts, for output, and stopWord file");
+					.println("ERROR: please give eight parameters: bow_context.tok_feat, listID_SentID_Map.txt, sentId_info.txt, "
+							+ "hasItem.cfacts.aug, and sentID_list_cleanSet.txt for input,  "
+							+ "hasFeature.cfacts, featureOf.cfacts, inSection.cfacts, sectionHas.cfacts, for output, and stopWord file");
+
+			System.out
+					.println("       Note that sentID_list_cleanSet.txt is only effective for merged graph. It should be empty file for non-merged graph");
 			System.exit(0);
 		}
 
@@ -47,11 +51,16 @@ public class GraphFeature {
 		HashMap<String, StringBuffer> sentID_sectTitle_Map = loadSecTitleMap(args[2]);
 
 		BufferedReader brHasItem = new BufferedReader(new FileReader(args[3]));
+		HashSet<String> sentID_from_CleanData = loadSet(args[4]);
 		BufferedWriter bwHasFeature = new BufferedWriter(
-				new FileWriter(args[4]));
-		BufferedWriter bwFeatureOf = new BufferedWriter(new FileWriter(args[5]));
+				new FileWriter(args[5]));
+		BufferedWriter bwFeatureOf = new BufferedWriter(new FileWriter(args[6]));
 
-		HashSet<String> stopword = loadStopWord(args[6]);
+		BufferedWriter bwInSection = new BufferedWriter(new FileWriter(args[7]));
+		BufferedWriter bwSectionHas = new BufferedWriter(
+				new FileWriter(args[8]));
+
+		HashSet<String> stopword = loadStopWord(args[9]);
 
 		String line = null;
 
@@ -60,21 +69,29 @@ public class GraphFeature {
 		String listItem = null;
 		String bowContext = null;
 		String secTitle = null;
+		String sentID = null;
 		HashSet<String> tmpSet = null;
 		while ((line = brHasItem.readLine()) != null) {
 			listID = line.split("\t")[1];
 			listDrugItem = line.split("\t")[2];
 			listItem = listDrugItem.substring(listDrugItem.indexOf('@') + 1);
-
+			sentID = listID_SentID_Map.get(listID);
 			bowContext = listID_bowContext_Map.get(listID);
+
 			try {
-				secTitle = sentID_sectTitle_Map.get(
-						listID_SentID_Map.get(listID)).toString();
+				secTitle = sentID_sectTitle_Map.get(sentID).toString();
 			} catch (Exception e) {
 				System.out.println(line);
 				continue;
 			}
-			String tmp = bowContext + " " + secTitle;
+
+			String tmp = null;
+			if (!sentID_from_CleanData.contains(sentID)) {
+				if (secTitle == null)
+					secTitle = "";
+				tmp = bowContext + " " + secTitle;
+			} else
+				tmp = bowContext;
 			String[] toks = tmp.split("\\s+");
 			tmpSet = new HashSet<String>();
 			for (String tok : toks) {
@@ -92,10 +109,23 @@ public class GraphFeature {
 						+ listDrugItem);
 				bwFeatureOf.newLine();
 			}
+
+			if (sentID_from_CleanData.contains(sentID) && secTitle != null) {
+				secTitle = secTitle.toLowerCase().replaceAll("\\s+", "_");
+				bwInSection.write("inSection\t" + listDrugItem + "\t"
+						+ secTitle + "@" + listItem);
+				bwInSection.newLine();
+				bwSectionHas.write("sectionHas\t" + secTitle + "@" + listItem
+						+ "\t" + listDrugItem);
+				bwInSection.newLine();
+			}
+
 		}
 		bwHasFeature.close();
 		bwFeatureOf.close();
 		brHasItem.close();
+		bwInSection.close();
+		bwSectionHas.close();
 
 	}
 
@@ -108,6 +138,17 @@ public class GraphFeature {
 		while ((line = br.readLine()) != null) {
 			ret.add(line.trim().toLowerCase());
 			ret.add("bowContext=" + line.trim().toLowerCase());
+		}
+		br.close();
+		return ret;
+	}
+
+	private static HashSet<String> loadSet(String file) throws IOException {
+		HashSet<String> ret = new HashSet<String>();
+		BufferedReader br = new BufferedReader(new FileReader(file));
+		String line;
+		while ((line = br.readLine()) != null) {
+			ret.add(line.trim());
 		}
 		br.close();
 		return ret;
