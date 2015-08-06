@@ -82,34 +82,40 @@ public class GetWikiArticles {
 		bw.newLine();
 
 		String prevSection = "Abstract";
-		bw.write("<"+prevSection.toLowerCase()+">## " + prevSection);
+		bw.write("<" + prevSection.toLowerCase() + ">## " + prevSection);
 		bw.newLine();
 		String line;
 		for (int i = 2; i < artLines.size(); i++) {
 			line = artLines.get(i);
 
 			if (line.startsWith(".. ") && line.endsWith(" ..")) {
-				if (prevSection != null) {
-					bw.write("</"+prevSection.replaceAll(" ", "_").toLowerCase()+">");
+				if (prevSection != null && !prevSection.equals("")) {
+					bw.write("</" + prevSection.replaceAll(" ", "_").toLowerCase() + ">");
 					bw.newLine();
 				}
-				prevSection = line.replaceAll("\\.\\.", "").replaceAll("<.*>", "").replaceAll("&", "and").replaceAll("[^a-zA-Z]+", " ").replaceAll("\\s+", " ").trim();
-				bw.write("<"+prevSection.replaceAll(" ", "_").toLowerCase()+">");
-				bw.write("## " + prevSection);
-				bw.newLine();
+				prevSection = line.replaceAll("\\.\\.", "").replaceAll("&", "and").replaceAll("[^a-zA-Z]+", " ").replaceAll("\\s+", " ").trim();
+				if (!prevSection.equals("")) {
+					bw.write("<" + prevSection.replaceAll(" ", "_").toLowerCase() + ">");
+					bw.write("## " + prevSection);
+					bw.newLine();
+				}
 			}
-			else if (!line.trim().equals("</doc>") && line.trim().length() > 0) {
-				bw.write(line.replaceAll("<.*>", "").replaceAll("&", "and"));
+			else if (!line.trim().equals("</doc>") && line.trim().length() > 0 && !prevSection.equals("")) {
+				bw.write(escapeXml(line));
 				bw.newLine();
 			}
 		}
-		if (prevSection != null) {
-			bw.write("</"+prevSection.replaceAll(" ", "_").toLowerCase()+">");
+		if (prevSection != null && !prevSection.equals("")) {
+			bw.write("</" + prevSection.replaceAll(" ", "_").toLowerCase() + ">");
 			bw.newLine();
 		}
 		bw.write("</item>");
 		bw.newLine();
 
+	}
+
+	public static String escapeXml(String s) {
+		return s.replaceAll("&", "&amp;").replaceAll(">", "&gt;").replaceAll("<", "&lt;");
 	}
 
 	public static ArrayList<String> getOneArticle(BufferedReader br) throws IOException {
