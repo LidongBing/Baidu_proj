@@ -2,7 +2,6 @@ package webmd.Preprocess;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -35,7 +34,7 @@ public class GraphFeature {
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 
-		if (args.length != 8) {
+		if (args.length != 10) {
 			System.out
 					.println("ERROR: please give eight parameters: bow_context.tok_feat, listID_SentID_Map.txt, sentId_info.txt, "
 							+ "hasItem.cfacts.aug, and sentID_list_cleanSet.txt for input,  "
