@@ -110,10 +110,10 @@ public class DrugAugmentGraph {
 			if (!retMap.containsKey(toks[0]))
 				retMap.put(toks[0], new HashSet<String>());
 
-			if (!line.split("\t")[1].equals("null"))
-				name = line.split("\t")[1];
+			if (!toks[1].equals("null"))
+				name = toks[1];
 			else
-				name = line.split("\t")[2];
+				name = toks[2];
 
 			retMap.get(toks[0]).add(
 					name.trim().replaceAll("\\s+", "_").toLowerCase());

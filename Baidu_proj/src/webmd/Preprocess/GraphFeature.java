@@ -117,7 +117,7 @@ public class GraphFeature {
 				bwInSection.newLine();
 				bwSectionHas.write("sectionHas\t" + secTitle + "@" + listItem
 						+ "\t" + listDrugItem);
-				bwInSection.newLine();
+				bwSectionHas.newLine();
 			}
 
 		}
