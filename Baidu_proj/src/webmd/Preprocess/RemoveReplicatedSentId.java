@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/*
+ * merge two corpora
+ */
 public class RemoveReplicatedSentId {
 	private static HashMap<String, String> nlm = new HashMap<>();
 	private static HashMap<String, String> webmd = new HashMap<>();
@@ -28,7 +31,7 @@ public class RemoveReplicatedSentId {
 
 	public static void outputSentId(String outputSentIdFile) throws IOException {
 		BufferedWriter bw = new BufferedWriter(new FileWriter(outputSentIdFile));
-		for(String id : webmdSentId){
+		for (String id : webmdSentId) {
 			bw.write(id);
 			bw.newLine();
 		}
@@ -49,7 +52,8 @@ public class RemoveReplicatedSentId {
 		bw.close();
 	}
 
-	public static void loadDep(String fileName, HashMap<String, String> map, ArrayList<String> list, String entity) throws IOException {
+	public static void loadDep(String fileName, HashMap<String, String> map,
+			ArrayList<String> list, String entity) throws IOException {
 		BufferedReader br = new BufferedReader(new FileReader(fileName));
 		String line = null;
 		String buf = "";
@@ -62,16 +66,14 @@ public class RemoveReplicatedSentId {
 						webmdSentId.add(buf.split("\t")[1]);
 					}
 					key = buf;
-				}
-				else {
+				} else {
 					list.add(key);
 					map.put(key, buf);
 				}
 				isCode = !isCode;
 				buf = "";
 
-			}
-			else {
+			} else {
 				buf += line + "\n";
 			}
 		}
