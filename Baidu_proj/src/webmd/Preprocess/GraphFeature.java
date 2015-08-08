@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -47,7 +48,7 @@ public class GraphFeature {
 
 		HashMap<String, String> listID_bowContext_Map = loadTwoColumnMap(args[0]);
 		HashMap<String, String> listID_SentID_Map = loadTwoColumnMap(args[1]);
-		HashMap<String, StringBuffer> sentID_sectTitle_Map = loadSecTitleMap(args[2]);
+		HashMap<String, ArrayList<String>> sentID_sectTitle_Map = loadSecTitleMap(args[2]);
 
 		BufferedReader brHasItem = new BufferedReader(new FileReader(args[3]));
 		HashSet<String> sentID_from_CleanData = loadSet(args[4]);
@@ -67,9 +68,10 @@ public class GraphFeature {
 		String listDrugItem = null;
 		String listItem = null;
 		String bowContext = null;
-		String secTitle = null;
+		ArrayList<String> secTitle = null;
 		String sentID = null;
-		HashSet<String> tmpSet = null;
+		HashSet<String> tmpTokSet = null;
+		HashSet<String> tmpTitleSet = null;
 		while ((line = brHasItem.readLine()) != null) {
 			listID = line.split("\t")[1];
 			listDrugItem = line.split("\t")[2];
@@ -78,7 +80,7 @@ public class GraphFeature {
 			bowContext = listID_bowContext_Map.get(listID);
 
 			try {
-				secTitle = sentID_sectTitle_Map.get(sentID).toString();
+				secTitle = sentID_sectTitle_Map.get(sentID);
 			} catch (Exception e) {
 				System.out.println(line);
 				continue;
@@ -87,17 +89,20 @@ public class GraphFeature {
 			String tmp = null;
 			if (!sentID_from_CleanData.contains(sentID)) {
 				if (secTitle == null)
-					secTitle = "";
-				tmp = bowContext + " " + secTitle;
+					secTitle = new ArrayList<String>();
+				tmpTitleSet = new HashSet<String>();
+				tmpTitleSet.addAll(secTitle);
+				for (String oneTitle : tmpTitleSet)
+					tmp = bowContext + " " + oneTitle;
 			} else
 				tmp = bowContext;
 			String[] toks = tmp.split("\\s+");
-			tmpSet = new HashSet<String>();
+			tmpTokSet = new HashSet<String>();
 			for (String tok : toks) {
-				if (tmpSet.contains(tok))
+				if (tmpTokSet.contains(tok))
 					continue;
 				else
-					tmpSet.add(tok);
+					tmpTokSet.add(tok);
 
 				if (stopword.contains(tok))
 					continue;
@@ -110,21 +115,25 @@ public class GraphFeature {
 			}
 
 			if (sentID_from_CleanData.contains(sentID) && secTitle != null) {
-				secTitle = secTitle.toLowerCase().replaceAll("\\s+", "_");
-				bwInSection.write("inSection\t" + listDrugItem + "\t"
-						+ secTitle + "@" + listItem);
-				bwInSection.newLine();
-				bwSectionHas.write("sectionHas\t" + secTitle + "@" + listItem
-						+ "\t" + listDrugItem);
-				bwSectionHas.newLine();
+				tmpTitleSet = new HashSet<String>();
+				tmpTitleSet.addAll(secTitle);
+				for (String oneTitle : tmpTitleSet) {
+					oneTitle = oneTitle.replaceAll("\\s+", "_");
+					bwInSection.write("inSection\t" + listDrugItem + "\t"
+							+ oneTitle + "@" + listItem);
+					bwInSection.newLine();
+					bwSectionHas.write("sectionHas\t" + oneTitle + "@"
+							+ listItem + "\t" + listDrugItem);
+					bwSectionHas.newLine();
+				}
 			}
 
 		}
 		bwHasFeature.close();
 		bwFeatureOf.close();
 		brHasItem.close();
-		bwInSection.close();
 		bwSectionHas.close();
+		bwInSection.close();
 
 	}
 
@@ -169,9 +178,9 @@ public class GraphFeature {
 		return retMap;
 	}
 
-	public static HashMap<String, StringBuffer> loadSecTitleMap(String file)
+	public static HashMap<String, ArrayList<String>> loadSecTitleMap(String file)
 			throws IOException {
-		HashMap<String, StringBuffer> retMap = new HashMap<String, StringBuffer>();
+		HashMap<String, ArrayList<String>> retMap = new HashMap<String, ArrayList<String>>();
 		BufferedReader br = new BufferedReader(new FileReader(file));
 
 		String line = null;
@@ -181,15 +190,14 @@ public class GraphFeature {
 			toks = line.split("\t");
 
 			if (!retMap.containsKey(toks[0]))
-				retMap.put(toks[0], new StringBuffer());
+				retMap.put(toks[0], new ArrayList<String>());
 
 			if (!line.split("\t")[3].equals("null"))
 				title = line.split("\t")[3];
 			else
 				title = "";
 
-			retMap.get(toks[0]).append(
-					" " + title.trim().replaceAll("\\s+", "_").toLowerCase());
+			retMap.get(toks[0]).add(title.trim().toLowerCase());
 
 		}
 		br.close();
