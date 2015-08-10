@@ -38,7 +38,7 @@ public class GraphFeature {
 		if (args.length != 10) {
 			System.out
 					.println("ERROR: please give ten parameters: bow_context.tok_feat, listID_SentID_Map.txt, sentId_info.txt, "
-							+ "hasItem.cfacts.aug, and sentID_list_cleanSet.txt for input,  "
+							+ "hasItem_aug.cfacts, and cleaned_sent_id.txt for input,  "
 							+ "hasFeature.cfacts, featureOf.cfacts, inSection.cfacts, sectionHas.cfacts, for output, and stopWord file");
 
 			System.out
