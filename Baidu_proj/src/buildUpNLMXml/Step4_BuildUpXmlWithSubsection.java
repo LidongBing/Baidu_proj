@@ -129,7 +129,7 @@ class SingleFileBuildWithSubSection {
 					NodeList paragraphList = (NodeList) xPath.compile(".//*[name() = 'paragraph' or name() = 'list']").evaluate(textNode, XPathConstants.NODESET);
 					for (int j = 0; null != paragraphList && j < paragraphList.getLength(); j++) {
 						Node paragraphNode = paragraphList.item(j);
-						text += StringUtil.trimText(paragraphNode.getTextContent());
+						text += StringUtil.trimText(paragraphNode.getTextContent()) + " ";
 					}
 					text = text.trim();
 				}
@@ -155,7 +155,7 @@ class SingleFileBuildWithSubSection {
 					String subText = "";
 					for (int j = 0; null != subParagraphList && j < subParagraphList.getLength(); j++) {
 						Node subParagraphNode = subParagraphList.item(j);
-						subText += StringUtil.trimText(subParagraphNode.getTextContent());
+						subText += StringUtil.trimText(subParagraphNode.getTextContent()) + " ";
 					}
 					subText = subText.trim();
 					subComponent.put(subTitle, subText);
