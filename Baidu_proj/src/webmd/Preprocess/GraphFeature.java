@@ -97,12 +97,15 @@ public class GraphFeature {
 			} else
 				tmp = bowContext;
 			String[] toks = tmp.split("\\s+");
-			tmpTokSet = new HashSet<String>();
+			// tmpTokSet = new HashSet<String>();
 			for (String tok : toks) {
-				if (tmpTokSet.contains(tok))
-					continue;
-				else
-					tmpTokSet.add(tok);
+
+				// if remove duplicated feature, use this, if compute
+				// similarity, duplicated should be kept
+				// if (tmpTokSet.contains(tok))
+				// continue;
+				// else
+				// tmpTokSet.add(tok);
 
 				if (stopword.contains(tok))
 					continue;
@@ -144,10 +147,23 @@ public class GraphFeature {
 
 		String line = null;
 		while ((line = br.readLine()) != null) {
+
+			line = cleanUnwantedChars(line);
 			ret.add(line.trim().toLowerCase());
 			ret.add("bowContext=" + line.trim().toLowerCase());
 		}
 		br.close();
+		return ret;
+	}
+
+	private static String cleanUnwantedChars(String line) {
+		String ret = "";
+		char c;
+		for (int i = 0; i < line.length(); i++) {
+			c = line.charAt(i);
+			if (c > 32 && c < 127)
+				ret += c;
+		}
 		return ret;
 	}
 
