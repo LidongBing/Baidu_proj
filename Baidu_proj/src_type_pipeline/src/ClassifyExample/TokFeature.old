@@ -1,0 +1,274 @@
+package ClassifyExample;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import java.util.Set;
+
+/*
+ * Generate feature token file for binary class classification
+ * 
+ * Each feature type is separately generated and they are merged later
+ * 
+ * The features are filtered
+ */
+public class TokFeature {
+	public static int minFre = 3;
+
+	// after filtering with minFre, filter the filterTop ones
+	public static double filterTop = 0.1;
+
+	public static void printHelp() {
+
+		System.out
+				.println("Please give five args: tokFeatDir, doFilter, labelMapFile, trainExmpFile, and testExmpFile.");
+
+		System.out.println("tokFeatDir: the directory of the tok features ");
+		System.out
+				.println("doFilter: dofilter OR nofilter, whether filter the features in training examples");
+		System.out
+				.println("labelMapFile: contains the label ID map, in format 'symptom\t id'");
+		System.out.println("trainExmpFile: training examples");
+		System.out
+				.println("testExmpFile: testing examples may or may not have labels");
+		System.exit(0);
+
+	}
+
+	public static void main(String[] args) throws IOException {
+		// TODO Auto-generated method stub
+
+		if (args.length != 5) {
+			System.out.println("ERROR happened !!");
+			printHelp();
+		}
+		if (args.length > 0 && args[0].equals("-help"))
+			printHelp();
+
+		if (!args[0].endsWith(File.separator))
+			args[0] += File.separator;
+
+		String[] featFiles = { "bow_context.tok_feat",
+				"close_context.tok_feat", "dep.tok_feat", "list_bow.tok_feat",
+				"pre_suffix.tok_feat" };
+		
+		boolean doFilter =false;
+
+		HashSet<String> labels = new HashSet<String>();
+		labels.addAll(loadLabel(args[2]).values());
+
+		String trainExmpFile = args[3];
+		String testExmpFile = args[4];
+
+		ArrayList<String> trainExmps = null;
+		ArrayList<String> trainExmpTypes = null;
+
+		ArrayList<String> testExmps = null;
+		ArrayList<String> testExmpTypes = null;
+
+		trainExmps = new ArrayList<String>();
+		trainExmpTypes = new ArrayList<String>();
+		testExmps = new ArrayList<String>();
+		testExmpTypes = new ArrayList<String>();
+		loadExmpList(trainExmpFile, trainExmps, trainExmpTypes);
+		loadExmpList(testExmpFile, testExmps, testExmpTypes);
+		// labels.addAll(trainExmpTypes);
+
+		for (String featFile : featFiles) {
+			if (doFilter) {
+				if (featFile.contains("list_bow.tok_feat")) {
+					minFre = 2;
+					filterTop = 0.0;
+				} else if (featFile.contains("pre_suffix.tok_feat")) {
+					minFre = 2;
+					filterTop = 0.05;
+				} else {
+					minFre = 3;
+					filterTop = 0.1;
+				}
+			}
+
+			if(args[1].equals("dofilter"))
+				doFilter = true;
+			HashMap<String, HashMap<String, Double>> trainFeatMap = getFeat(
+					doFilter, args[0] + featFile, trainExmps);
+
+			saveFeatVect(trainFeatMap, trainExmps, trainExmpTypes,
+					trainExmpFile.replace(".exmps", "_" + featFile));
+
+			doFilter = false;
+			HashMap<String, HashMap<String, Double>> testFeatMap = getFeat(
+					doFilter, args[0] + featFile, testExmps);
+
+			saveFeatVect(testFeatMap, testExmps, testExmpTypes,
+					testExmpFile.replace(".exmps", "_" + featFile));
+		}
+
+	}
+
+	public static void saveFeatVect(
+			HashMap<String, HashMap<String, Double>> featureMap,
+			ArrayList<String> exmpLists, ArrayList<String> exmpTypes,
+			String outputFile) throws IOException {
+
+		BufferedWriter bw = new BufferedWriter(new FileWriter(outputFile));
+		StringBuffer sb = null;
+		Set<Entry<String, Double>> featSet = null;
+
+		for (int i = 0; i < exmpLists.size(); i++) {
+			sb = new StringBuffer(exmpLists.get(i) + "\t" + exmpTypes.get(i)
+					+ "\t");
+
+			featSet = featureMap.get(exmpLists.get(i)).entrySet();
+			for (Entry<String, Double> entry : featSet) {
+				sb.append(entry.getKey() + " " + entry.getValue() + "\t");
+			}
+			bw.write(sb.toString());
+			bw.newLine();
+		}
+
+		bw.close();
+
+	}
+
+	// return: <listID, <featureTok, weight>>
+	// each line of featfile: listID \t feature1 feature 2
+	public static HashMap<String, HashMap<String, Double>> getFeat(
+			boolean filter, String featfile, ArrayList<String> exmpLists)
+			throws IOException {
+
+		// listID to {feature, IDs}
+		HashMap<String, HashMap<String, Double>> featNestedMap = new HashMap<String, HashMap<String, Double>>();
+		for (String exmp : exmpLists) {
+			featNestedMap.put(exmp, new HashMap<String, Double>());
+		}
+
+		HashMap<String, Integer> featureFreMap = new HashMap<String, Integer>();
+
+		BufferedReader brFact = new BufferedReader(new FileReader(featfile));
+		String line = brFact.readLine();
+		String[] tokens = null;
+		double weight = 0;
+		while (line != null) {
+			tokens = line.split("\\s+");
+			if (tokens.length == 0) {
+				line = brFact.readLine();
+				continue;
+			}
+
+			if (featNestedMap.containsKey(tokens[0])) {
+				for (int j = 1; j < tokens.length; j++) {
+					HashMap<String, Double> tmpMap = featNestedMap
+							.get(tokens[0]);
+					if (!tmpMap.containsKey(tokens[j]))
+						tmpMap.put(tokens[j], (double) 0);
+					tmpMap.put(tokens[j], tmpMap.get(tokens[j]) + 1);
+
+					if (!featureFreMap.containsKey(tokens[j]))
+						featureFreMap.put(tokens[j], 0);
+					featureFreMap.put(tokens[j],
+							featureFreMap.get(tokens[j]) + 1);
+				}
+			}
+			line = brFact.readLine();
+		}
+		brFact.close();
+
+		if (filter) {
+
+			HashMap<String, Integer> featFiltered = new HashMap<String, Integer>();
+			Set<Entry<String, Integer>> featSet = featureFreMap.entrySet();
+			for (Entry<String, Integer> entry : featSet) {
+				if (entry.getValue() >= minFre) {
+					featFiltered.put(entry.getKey(), entry.getValue());
+				}
+			}
+			featureFreMap = featFiltered;
+
+			ArrayList<Integer> freqList = new ArrayList<Integer>();
+			freqList.addAll(featureFreMap.values());
+			Collections.sort(freqList);
+			int cutFre = freqList
+					.get((int) (freqList.size() * (1 - filterTop - 0.0001)));
+
+			featFiltered = new HashMap<String, Integer>();
+			featSet = featureFreMap.entrySet();
+			for (Entry<String, Integer> entry : featSet) {
+				if (entry.getValue() <= cutFre) {
+					featFiltered.put(entry.getKey(), entry.getValue());
+				}
+			}
+
+			Set<Entry<String, HashMap<String, Double>>> nestedEntrySet = featNestedMap
+					.entrySet();
+			for (Entry<String, HashMap<String, Double>> nestedEntry : nestedEntrySet) {
+				ArrayList<String> feats = new ArrayList<String>();
+				feats.addAll(nestedEntry.getValue().keySet());
+				for (String feat : feats) {
+					if (!featFiltered.containsKey(feat))
+						nestedEntry.getValue().remove(feat);
+				}
+			}
+		}
+
+		return featNestedMap;
+	}
+
+	/*
+	 * each line is a training example "listID \t class"
+	 */
+	public static void loadExmpList(String exampleFile,
+			ArrayList<String> examples, ArrayList<String> exmpTypes)
+			throws IOException {
+		BufferedReader br = new BufferedReader(new FileReader(exampleFile));
+		String line = br.readLine();
+		String[] tokens = null;
+		while (line != null && line.trim().length() > 0) {
+			tokens = line.split("\\s+");
+			if (tokens.length == 2) {
+				examples.add(tokens[0]);
+				exmpTypes.add(tokens[1]);
+			} else {
+				examples.add(tokens[0]);
+			}
+
+			line = br.readLine();
+		}
+		br.close();
+
+	}
+
+	public static HashMap<String, String> loadLabel(String labelFile)
+			throws IOException {
+
+		HashMap<String, String> labelMap = new HashMap<String, String>();
+
+		BufferedReader br = new BufferedReader(new FileReader(labelFile));
+		String line = br.readLine();
+		String[] tokens = null;
+		while (line != null && line.trim().length() != 0) {
+			tokens = line.split("\\s+");
+
+			if (tokens.length != 2) {
+				System.out
+						.println("ERROR: label map file should have two columns: labelName \t labelID");
+				System.exit(0);
+
+			}
+			labelMap.put(tokens[0], tokens[1]);
+			line = br.readLine();
+		}
+		br.close();
+
+		return labelMap;
+	}
+}
