@@ -123,7 +123,7 @@ public class AddEdge_TFIDF {
 	}
 
 	public static void getIDF() {
-		HashSet<String> feats;
+		HashSet<String> feats; 
 
 		Long id;
 		for (String pair : featureMap.keySet()) {
