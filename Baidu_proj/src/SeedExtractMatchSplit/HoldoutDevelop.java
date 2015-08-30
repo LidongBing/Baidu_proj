@@ -17,7 +17,7 @@ public class HoldoutDevelop {
 	public static void main(String[] args) throws IOException {
 		String seedPath = args[0];
 		String runPath = args[1];
-		double holdPercent = 0.5;
+		double holdPercent = 1;
 		String[] relations = args[2].split(",");
 		if (!new File(runPath).exists())
 			new File(runPath).mkdir();
@@ -46,10 +46,10 @@ public class HoldoutDevelop {
 		}
 		br.close();
 		ArrayList<String> secondList = split(percentage, firstList);
-		for (String str1 : firstList) {
+		for (String str1 : secondList) {
 			bw1.write(str1 + "\n");
 		}
-		for (String str2 : secondList) {
+		for (String str2 : firstList) {
 			bw2.write(str2 + "\n");
 		}
 		bw1.close();

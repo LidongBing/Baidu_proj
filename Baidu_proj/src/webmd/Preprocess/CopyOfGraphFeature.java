@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
 /*
  * Generate hasFeature and featureOf files.
@@ -31,15 +30,19 @@ import java.util.Set;
  * featureOf.cfacts: featureOf <TAB> feature@item <TAB> genericName@item
  */
 
-public class GraphFeature {
+public class CopyOfGraphFeature {
 
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 
-		if (args.length != 13) {
-			System.out.println("ERROR: please give ten parameters: (0)bow_context.tok_feat, (1)listID_SentID_Map.txt, (2)sentId_info.txt, " + "(3)hasItem_aug.cfacts, and (4)cleaned_sent_id.txt for input,  " + "(5)hasFeature.cfacts, (6)featureOf.cfacts, (7)inPropSec.cfacts, (8)propSecHas.cfacts, for output, and (9)stopWord file" + "(10)inDocSec.cfacts, (11)docSecHas.cfacts for output (12) validSectTitle for input");
+		if (args.length != 10) {
+			System.out
+					.println("ERROR: please give ten parameters: bow_context.tok_feat, listID_SentID_Map.txt, sentId_info.txt, "
+							+ "hasItem_aug.cfacts, and cleaned_sent_id.txt for input,  "
+							+ "hasFeature.cfacts, featureOf.cfacts, inSection.cfacts, sectionHas.cfacts, for output, and stopWord file");
 
-			System.out.println("       Note that sentID_list_cleanSet.txt is only effective for merged graph. It should be empty file for non-merged graph");
+			System.out
+					.println("       Note that sentID_list_cleanSet.txt is only effective for merged graph. It should be empty file for non-merged graph");
 			System.exit(0);
 		}
 
@@ -49,30 +52,29 @@ public class GraphFeature {
 
 		BufferedReader brHasItem = new BufferedReader(new FileReader(args[3]));
 		HashSet<String> sentID_from_CleanData = loadSet(args[4]);
-		BufferedWriter bwHasFeature = new BufferedWriter(new FileWriter(args[5]));
+		BufferedWriter bwHasFeature = new BufferedWriter(
+				new FileWriter(args[5]));
 		BufferedWriter bwFeatureOf = new BufferedWriter(new FileWriter(args[6]));
 
-		BufferedWriter inPropSec = new BufferedWriter(new FileWriter(args[7]));
-		BufferedWriter propSecHas = new BufferedWriter(new FileWriter(args[8]));
+		BufferedWriter bwInSection = new BufferedWriter(new FileWriter(args[7]));
+		BufferedWriter bwSectionHas = new BufferedWriter(
+				new FileWriter(args[8]));
 
 		HashSet<String> stopword = loadStopWord(args[9]);
-		BufferedWriter inDocSec = new BufferedWriter(new FileWriter(args[10]));
-		BufferedWriter docSecHas = new BufferedWriter(new FileWriter(args[11]));
-		Set<String> validSectTitle = loadSectTitle(args[12]);
+
 		String line = null;
 
 		String listID = null;
 		String listDrugItem = null;
 		String listItem = null;
-		String listDrug = null;
 		String bowContext = null;
 		ArrayList<String> secTitle = null;
 		String sentID = null;
+		HashSet<String> tmpTokSet = null;
 		HashSet<String> tmpTitleSet = null;
 		while ((line = brHasItem.readLine()) != null) {
 			listID = line.split("\t")[1];
 			listDrugItem = line.split("\t")[2];
-			listDrug = listDrugItem.substring(0, listDrugItem.indexOf('@'));
 			listItem = listDrugItem.substring(listDrugItem.indexOf('@') + 1);
 			sentID = listID_SentID_Map.get(listID);
 			bowContext = listID_bowContext_Map.get(listID);
@@ -92,8 +94,7 @@ public class GraphFeature {
 				tmpTitleSet.addAll(secTitle);
 				for (String oneTitle : tmpTitleSet)
 					tmp = bowContext + " " + oneTitle;
-			}
-			else
+			} else
 				tmp = bowContext;
 			String[] toks = tmp.split("\\s+");
 			// tmpTokSet = new HashSet<String>();
@@ -108,9 +109,11 @@ public class GraphFeature {
 
 				if (stopword.contains(tok))
 					continue;
-				bwHasFeature.write("hasFeature\t" + listDrugItem + "\t" + tok + "@" + listItem);
+				bwHasFeature.write("hasFeature\t" + listDrugItem + "\t" + tok
+						+ "@" + listItem);
 				bwHasFeature.newLine();
-				bwFeatureOf.write("featureOf\t" + tok + "@" + listItem + "\t" + listDrugItem);
+				bwFeatureOf.write("featureOf\t" + tok + "@" + listItem + "\t"
+						+ listDrugItem);
 				bwFeatureOf.newLine();
 			}
 
@@ -119,16 +122,12 @@ public class GraphFeature {
 				tmpTitleSet.addAll(secTitle);
 				for (String oneTitle : tmpTitleSet) {
 					oneTitle = oneTitle.replaceAll("\\s+", "_");
-					if (validSectTitle.contains(oneTitle)) {
-						inPropSec.write("inPropSec\t" + listDrugItem + "\t" + oneTitle + "+" + listItem);
-						inPropSec.newLine();
-						propSecHas.write("propSecHas\t" + oneTitle + "+" + listItem + "\t" + listDrugItem);
-						propSecHas.newLine();
-						inDocSec.write("inDocSec\t" + listDrugItem + "\t" + oneTitle + "+" + listDrug);
-						inDocSec.newLine();
-						docSecHas.write("docSecHas\t" + oneTitle + "+" + listDrug + "\t" + listDrugItem);
-						docSecHas.newLine();
-					}
+					bwInSection.write("inSection\t" + listDrugItem + "\t"
+							+ oneTitle + "@" + listItem);
+					bwInSection.newLine();
+					bwSectionHas.write("sectionHas\t" + oneTitle + "@"
+							+ listItem + "\t" + listDrugItem);
+					bwSectionHas.newLine();
 				}
 			}
 
@@ -136,19 +135,9 @@ public class GraphFeature {
 		bwHasFeature.close();
 		bwFeatureOf.close();
 		brHasItem.close();
-		propSecHas.close();
-		inPropSec.close();
-		inDocSec.close();
-		docSecHas.close();
-	}
+		bwSectionHas.close();
+		bwInSection.close();
 
-	private static Set<String> loadSectTitle(String line) {
-		String[] token = line.split(",");
-		Set<String> set = new HashSet<String>();
-		for (String tok : token) {
-			set.add(tok);
-		}
-		return set;
 	}
 
 	public static HashSet<String> loadStopWord(String file) throws IOException {
@@ -189,7 +178,8 @@ public class GraphFeature {
 		return ret;
 	}
 
-	public static HashMap<String, String> loadTwoColumnMap(String file) throws IOException {
+	public static HashMap<String, String> loadTwoColumnMap(String file)
+			throws IOException {
 		HashMap<String, String> retMap = new HashMap<String, String>();
 		BufferedReader br = new BufferedReader(new FileReader(file));
 
@@ -204,7 +194,8 @@ public class GraphFeature {
 		return retMap;
 	}
 
-	public static HashMap<String, ArrayList<String>> loadSecTitleMap(String file) throws IOException {
+	public static HashMap<String, ArrayList<String>> loadSecTitleMap(String file)
+			throws IOException {
 		HashMap<String, ArrayList<String>> retMap = new HashMap<String, ArrayList<String>>();
 		BufferedReader br = new BufferedReader(new FileReader(file));
 

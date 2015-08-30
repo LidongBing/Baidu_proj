@@ -17,7 +17,7 @@ public class PropprSeedForTrainTestList {
 	public static void main(String[] args) throws IOException {
 		String runPath = args[0];
 		String[] relations = args[1].split(",");
-		double testPercent = 0.2; // total's 10%, since the development set
+		double testPercent = 0.1; // total's 10%, since the development set
 									// contains 50% of total
 		for (int run = 0; run < 10; run++) {
 			for (String relation : relations) {
