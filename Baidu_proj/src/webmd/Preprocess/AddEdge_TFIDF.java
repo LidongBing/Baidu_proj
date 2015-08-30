@@ -24,7 +24,7 @@ public class AddEdge_TFIDF {
 	// feature TO pair set
 	public static HashMap<String, HashSet<String>> invertedIdx = new HashMap<String, HashSet<String>>();
 
-	public static HashMap<Long, Integer> DF = new HashMap<Long, Integer>();
+	public static HashMap<Long, Double> idfMap = new HashMap<Long, Double>();
 
 	public static HashMap<String, Long> termID = new HashMap<String, Long>();
 
@@ -66,7 +66,7 @@ public class AddEdge_TFIDF {
 		loadSSItemMatching(args[2]);
 		loadHasFeature(args[0]);
 
-		countDF();
+		getIDF();
 		buildIdx();
 
 		computeTFIDFEdge();
@@ -122,7 +122,7 @@ public class AddEdge_TFIDF {
 
 	}
 
-	public static void countDF() {
+	public static void getIDF() {
 		HashSet<String> feats;
 
 		Long id;
@@ -131,11 +131,16 @@ public class AddEdge_TFIDF {
 			feats.addAll(featureMap.get(pair));
 			for (String feat : feats) {
 				id = termID.get(feat);
-				if (!DF.containsKey(id)) {
-					DF.put(id, 0);
+				if (!idfMap.containsKey(id)) {
+					idfMap.put(id, 0.0);
 				}
-				DF.put(id, DF.get(id) + 1);
+				idfMap.put(id, idfMap.get(id) + 1);
 			}
+		}
+
+		for (Long idd : idfMap.keySet()) {
+			idfMap.put(idd, Math.log(totalFeatNO / idfMap.get(idd)));
+
 		}
 	}
 
@@ -249,9 +254,9 @@ public class AddEdge_TFIDF {
 		uniqFeats.addAll(feats);
 		for (String feat : uniqFeats) {
 			Long id = termID.get(feat);
-			int df = DF.get(id);
+			double idf = idfMap.get(id);
 
-			vecMap.put(id, vecMap.get(id) * Math.log(totalFeatNO / df));
+			vecMap.put(id, vecMap.get(id) * idf);
 		}
 
 		return vecMap;
