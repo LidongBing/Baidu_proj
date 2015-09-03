@@ -1,9 +1,9 @@
-DS_pipeline on Wiki corpus
 1. prepare data: gpig to get trivial list, trivial list tok feature, 
-  in /remote/curtis/baidu/relation-extraction/database/unit0_wiki/step2_gpid_cfacts_DS_pipeline
+  in: /remote/curtis/baidu/relation-extraction/database/unit0_wiki/step2_gpid_cfacts_DS_pipeline
   run: step0_build_xml, step1_xml_parse, step2_gpid_cfacts_DS_pipeline
-2. get SVM training examples: distantly label docName@item pair, get training vectors
-  in /remote/curtis/baidu/relation-extraction/disease_DS/
+2. distantly label docName@item pair, get SVM training testing vectors
+  in: /remote/curtis/baidu/relation-extraction/disease_DS/
   run: code/step1_TrivalList_get_exmp.sh, step2_ClassifyExample_tok_feat.sh, 
        step3_ClassifyExample_merge_tok_feat.sh, step4_ClassifyExample_feat_vec.sh
+3. SVM training
   
