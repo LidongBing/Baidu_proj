@@ -6,4 +6,11 @@
   run: code/step1_TrivalList_get_exmp.sh, step2_ClassifyExample_tok_feat.sh, 
        step3_ClassifyExample_merge_tok_feat.sh, step4_ClassifyExample_feat_vec.sh
 3. SVM training
+
+
+4. Get feature vectors of all trivial lists
+  in: /remote/curtis/baidu/relation-extraction/disease_DS/predict_all_list
+  run: disease_DS/code_all_list/run_ProcessAllList.sh
   
+ 
+[TODO]: prediction on all trivial list,
