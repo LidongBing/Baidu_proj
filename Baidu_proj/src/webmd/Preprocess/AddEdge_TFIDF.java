@@ -2,17 +2,13 @@ package webmd.Preprocess;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map.Entry;
-import java.util.Set;
 
 /*
  * Add edges for drug@item pairs, with Jaccard Index, from hasFeature.cfacts
