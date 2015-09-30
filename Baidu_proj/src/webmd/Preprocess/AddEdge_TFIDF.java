@@ -15,7 +15,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /*
- * Add edges for drug@item pairs, with Jaccard Index, from hasFeature.cfacts
+ * Add edges for drug@item pairs, with tfidf, from hasFeature.cfacts
  */
 public class AddEdge_TFIDF {
 
