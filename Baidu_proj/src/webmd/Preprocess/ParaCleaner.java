@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  */
 public class ParaCleaner {
 
-	public static String REG_EXP = "\\[([^(\\))]+)\\]\\(([^(\\])]+)\\)";
+	public static String REG_EXP = "+query(.*?)";
 
 	public static Pattern PTN = Pattern.compile(REG_EXP);
 
